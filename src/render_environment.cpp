@@ -68,7 +68,7 @@ void renderEnvironment::setFPSCounter(GLFWwindow* window, double deltaT) {
 		double fps = (double)(framesElapsed / timeElapsed) * 1000;
 		char tmp[128];
 		//Write formatted data to tmp string.
-		snprintf(tmp, sizeof(tmp)/sizeof(char), "Particle System @ %.2f FPS", fps);
+		snprintf(tmp, sizeof(tmp)/sizeof(char), "Render Window @ %.2f FPS", fps);
 		//Set window title to string.
 		glfwSetWindowTitle(window, tmp);
 		framesElapsed = 0;

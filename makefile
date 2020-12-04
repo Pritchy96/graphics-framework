@@ -3,7 +3,7 @@ CXXSHAREDFLAGS := -Wall -fPIC -std=c++11 -MMD -MP
 CXXFLAGS := -Wall -std=c++11 -g
 
 LDFLAGS      = -shared
-LIBS := -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -lGLEW -lhdf5\
+LIBS := -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -lGLEW \
 		  -lboost_system -lboost_filesystem
 
 SRC_DIR := ./src
@@ -15,6 +15,9 @@ SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES := $(filter-out $(MAINS), $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRC_FILES)))
 
 all: glfw-test
+
+init:
+	mkdir build bin
 
 shared: $(OBJ_FILES)
 	$(CC) $(CXXSHAREDFLAGS) -o $(TARGET) $(LIBS) $^ $(LDFLAGS)
