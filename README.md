@@ -1,1 +1,1 @@
-# particle-generator
+# Generic Graphics Framework
