@@ -22,7 +22,7 @@ using namespace std;
 using namespace glm;
 
 GLFWwindow* window;
-viewspaceManipulator* input;
+ViewspaceInput* input;
 
 GLuint shaderID;
 
@@ -59,7 +59,7 @@ vector<vec3> axis_colours = {
 	vec3(0.0f, 0.0f, 1.0f)
 };
 
-void renderEnvironment::setFPSCounter(GLFWwindow* window, double deltaT) {
+void RenderEnvironment::setFPSCounter(GLFWwindow* window, double deltaT) {
 	timeElapsed += deltaT;
 	framesElapsed++;
 
@@ -76,7 +76,7 @@ void renderEnvironment::setFPSCounter(GLFWwindow* window, double deltaT) {
 	}
 }
 
-renderEnvironment::renderEnvironment(glm::vec3 backgroundColour) {
+RenderEnvironment::RenderEnvironment(glm::vec3 backgroundColour) {
 	if( !glfwInit() ) {
 		fprintf( stderr, "Failed to initialize GLFW\n" );
 	}
@@ -90,7 +90,7 @@ renderEnvironment::renderEnvironment(glm::vec3 backgroundColour) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	
 	window = glfwCreateWindow(gl_width, gl_height, "Render Window", NULL, NULL);
-	input = new viewspaceManipulator(window, initialCameraPos);
+	input = new ViewspaceInput(window, initialCameraPos);
 
 	if( !window ) {
 		fprintf(stderr, "Failed to open GLFW window.\n" );
@@ -124,21 +124,21 @@ renderEnvironment::renderEnvironment(glm::vec3 backgroundColour) {
 	}
 	
 	basicShader = Shader::LoadShaders("./bin/shaders/basic.vertshader", "./bin/shaders/basic.fragshader");
-    renderAxis = new Renderable(basicShader, axis_lines, axis_colours);
+    renderAxis = new Renderable(basicShader, axis_lines, axis_colours, GL_LINES);
 	addRenderable(renderAxis);
 
 }
 
-void renderEnvironment::addRenderable(Renderable* renderable) {
+void RenderEnvironment::addRenderable(Renderable* renderable) {
 	renderables.push_back(renderable);
 }
 
 
-void renderEnvironment::setupTransformShader(GLuint transformShader) {
+void RenderEnvironment::setupTransformShader(GLuint transformShader) {
 	tShader = transformShader;
 }
 
-void renderEnvironment::update(float deltaT) {
+void RenderEnvironment::update(float deltaT) {
 	input->update(window);
 	setFPSCounter(window, deltaT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -161,17 +161,17 @@ void renderEnvironment::update(float deltaT) {
 	glfwPollEvents();
 }
 
-renderEnvironment::~renderEnvironment() {
+RenderEnvironment::~RenderEnvironment() {
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
 }
 
-void renderEnvironment::errorCallback(int error, const char* description) {
+void RenderEnvironment::errorCallback(int error, const char* description) {
 	fprintf(stderr, description);
 }
 
-void renderEnvironment::windowSizeCallback(GLFWwindow* window, int width, int height) {
+void RenderEnvironment::windowSizeCallback(GLFWwindow* window, int width, int height) {
 	gl_height = height;
 	gl_width = width;
 	glViewport(0, 0, gl_width, gl_height);

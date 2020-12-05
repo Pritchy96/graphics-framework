@@ -13,10 +13,10 @@
     using namespace glm;
     using namespace std;
 
-    class renderEnvironment {
+    class RenderEnvironment {
         public:
-            renderEnvironment(glm::vec3 backgroundColour);
-            ~renderEnvironment();
+            RenderEnvironment(glm::vec3 backgroundColour);
+            ~RenderEnvironment();
 
             void addRenderable(Renderable* renderable);
             void update(float deltaT);

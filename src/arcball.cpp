@@ -24,7 +24,6 @@ Arcball::Arcball( int window_width, int window_height, GLfloat roll_speed, bool 
     
     this->xAxis = x_axis;
     this->yAxis = y_axis;
-
 }
 
 /**
@@ -52,7 +51,6 @@ glm::vec3 Arcball::toScreenCoord( double x, double y ) {
     
     return coord;
 }
-
 
 void Arcball::mouseButtonCallback( GLFWwindow * window, int button, int action, int mods ){
     leftMouseButtonDown = ( action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT );

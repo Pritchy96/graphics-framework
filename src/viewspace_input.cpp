@@ -27,16 +27,16 @@ Arcball* arcball;
 float cameraDistance = 30.0f;
 
 
-mat4 viewspaceManipulator::getViewMatrix() {
+mat4 ViewspaceInput::getViewMatrix() {
 	return viewMatrix;
 }
 
-mat4 viewspaceManipulator::getProjectionMatrix() {
+mat4 ViewspaceInput::getProjectionMatrix() {
 	return projectionMatrix;
 }
 
-viewspaceManipulator::viewspaceManipulator(GLFWwindow *window, vec3 initialCameraPos) {
-	// glfwSetKeyCallback(window, viewspaceManipulator::key_callback);
+ViewspaceInput::ViewspaceInput(GLFWwindow *window, vec3 initialCameraPos) {
+	// glfwSetKeyCallback(window, ViewspaceInput::key_callback);
 		currentFrameTime = glfwGetTime();
 		lastFrameTime = glfwGetTime();
 		cameraPosDefault = cameraPos = initialCameraPos;
@@ -50,7 +50,7 @@ viewspaceManipulator::viewspaceManipulator(GLFWwindow *window, vec3 initialCamer
 		rotationMatrix = glm::mat4(1.0);
 }
 
-void viewspaceManipulator::update(GLFWwindow *window){
+void ViewspaceInput::update(GLFWwindow *window){
 	currentFrameTime = glfwGetTime();
 	float deltaTime = float(currentFrameTime - lastFrameTime);
 
@@ -67,19 +67,19 @@ void viewspaceManipulator::update(GLFWwindow *window){
 	// For the next frame, the "last time" will be "now"
 	lastFrameTime = currentFrameTime;
 }
-void viewspaceManipulator::mouseButtonCallback( GLFWwindow* window, int button, int action, int mods ){
+void ViewspaceInput::mouseButtonCallback( GLFWwindow* window, int button, int action, int mods ){
     arcball->mouseButtonCallback( window, button, action, mods );
 }
  
-void viewspaceManipulator::cursorCallback( GLFWwindow *window, double x, double y ) {
+void ViewspaceInput::cursorCallback( GLFWwindow *window, double x, double y ) {
     arcball->cursorCallback(window, x, y);
 }
 
-void viewspaceManipulator::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+void ViewspaceInput::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	cameraDistance = std::max(1.0, cameraDistance+yoffset);
 }
 	
-void viewspaceManipulator::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void ViewspaceInput::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	switch (key) {
 	case(GLFW_KEY_ESCAPE) :
 		exit(0);

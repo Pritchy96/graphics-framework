@@ -75,7 +75,7 @@ Renderable::Renderable(GLuint Shader, GLuint renderPrimative) {
 	renderType = renderPrimative;
 }
 
-//Uses Vert Data as placeholder Colour data too
+//Uses Vert Data as Colour data too (mostly for debug)
 Renderable::Renderable(GLuint Shader, vector<glm::vec3> vert_data, GLuint renderPrimative) {
 	shader = Shader;
 

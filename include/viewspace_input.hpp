@@ -1,5 +1,5 @@
-#ifndef VIEWSPACEMANIPULATOR_HPP
-#define VIEWSPACEMANIPULATOR_HPP
+#ifndef VIEWSPACEINPUT_HPP
+#define VIEWSPACEINPUT_HPP
 
     // #include "stdafx.h"
     #include <GL/glew.h>
@@ -9,9 +9,9 @@
 
     using namespace glm;
 
-    class viewspaceManipulator {
+    class ViewspaceInput {
         public:
-            viewspaceManipulator(GLFWwindow *window, vec3 initialCameraPos);
+            ViewspaceInput(GLFWwindow *window, vec3 initialCameraPos);
             mat4 getViewMatrix(); 
             mat4 getProjectionMatrix(); 
             void setup(GLFWwindow *window);  
