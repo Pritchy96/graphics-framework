@@ -12,17 +12,17 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include "../include/viewport.hpp"	
 
 #include "../include/shader.hpp"
-#include "../include/render_environment.hpp"
 #include "../include/renderable.hpp"
-#include "../include/viewspace_input.hpp"
+#include "../include/viewport_input.hpp"
+#include "../include/camera.hpp"
 
 using namespace std;
 using namespace glm;
 
-GLFWwindow* window;
-ViewspaceInput* input;
+//Camera* camera;
 
 GLuint shaderID;
 
@@ -59,7 +59,7 @@ vector<vec3> axis_colours = {
 	vec3(0.0f, 0.0f, 1.0f)
 };
 
-void RenderEnvironment::setFPSCounter(GLFWwindow* window, double deltaT) {
+void Viewport::setFPSCounter(GLFWwindow* glfwWindow, double deltaT) {
 	timeElapsed += deltaT;
 	framesElapsed++;
 
@@ -69,14 +69,14 @@ void RenderEnvironment::setFPSCounter(GLFWwindow* window, double deltaT) {
 		char tmp[128];
 		//Write formatted data to tmp string.
 		snprintf(tmp, sizeof(tmp)/sizeof(char), "Render Window @ %.2f FPS", fps);
-		//Set window title to string.
-		glfwSetWindowTitle(window, tmp);
+		//Set glfwWindow title to string.
+		glfwSetWindowTitle(glfwWindow, tmp);
 		framesElapsed = 0;
 		timeElapsed = 0;
 	}
 }
 
-RenderEnvironment::RenderEnvironment(glm::vec3 backgroundColour) {
+Viewport::Viewport(glm::vec3 backgroundColour) : ViewportInput(initialCameraPos) {
 	if( !glfwInit() ) {
 		fprintf( stderr, "Failed to initialize GLFW\n" );
 	}
@@ -89,21 +89,18 @@ RenderEnvironment::RenderEnvironment(glm::vec3 backgroundColour) {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); //For MacOS compat, apparrently 
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	
-	window = glfwCreateWindow(gl_width, gl_height, "Render Window", NULL, NULL);
-	input = new ViewspaceInput(window, initialCameraPos);
+	glfwWindow = glfwCreateWindow(gl_width, gl_height, "Render Window", NULL, NULL);
 
-	if( !window ) {
+	//Temp magic numbers derived from https://learnopengl.com/Getting-started/Camera
+	//camera = new Camera(gl_width, gl_height, glm::vec3(20, 20, 10), glm::vec3(20, 20, 10), glm::vec3(0.0f, 1.0f, 0.0f), glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(20, 20, 10))));
+
+	if( !glfwWindow ) {
 		fprintf(stderr, "Failed to open GLFW window.\n" );
 		glfwTerminate();
-	}	
+	}
 
-	glfwSetKeyCallback(window, input->key_callback);
-	glfwSetMouseButtonCallback(window, input->mouseButtonCallback);
-	glfwSetScrollCallback(window, input->scrollCallback);
-	glfwSetCursorPosCallback(window, input->cursorCallback);
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-	glfwSetWindowSizeCallback(window, windowSizeCallback);
-	glfwMakeContextCurrent(window);
+	glfwSetWindowSizeCallback(glfwWindow, windowSizeCallback);
+	glfwMakeContextCurrent(glfwWindow);
 
 	glClearColor(backgroundColour.r, backgroundColour.g, backgroundColour.b, 0.01f);
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
@@ -126,21 +123,20 @@ RenderEnvironment::RenderEnvironment(glm::vec3 backgroundColour) {
 	basicShader = Shader::LoadShaders("./bin/shaders/basic.vertshader", "./bin/shaders/basic.fragshader");
     renderAxis = new Renderable(basicShader, axis_lines, axis_colours, GL_LINES);
 	addRenderable(renderAxis);
-
 }
 
-void RenderEnvironment::addRenderable(Renderable* renderable) {
+void Viewport::addRenderable(Renderable* renderable) {
 	renderables.push_back(renderable);
 }
 
-
-void RenderEnvironment::setupTransformShader(GLuint transformShader) {
+void Viewport::setupTransformShader(GLuint transformShader) {
 	tShader = transformShader;
 }
 
-void RenderEnvironment::update(float deltaT) {
-	input->update(window);
-	setFPSCounter(window, deltaT);
+void Viewport::update(float deltaT) {
+	ViewportInput::update(glfwWindow);
+	//viewportInput->update(glfwWindow);
+	setFPSCounter(glfwWindow, deltaT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	vector<Renderable*>::iterator renderable = renderables.begin();
@@ -151,27 +147,24 @@ void RenderEnvironment::update(float deltaT) {
 			//iterator.erase gives the next item in the list.
 			renderable = renderables.erase(renderable);
 		} else {
-			(*renderable)->Draw(deltaT, input->getProjectionMatrix(), input->getViewMatrix());
+			(*renderable)->Draw(deltaT, getProjectionMatrix(), getViewMatrix());
 			++renderable;
 		}
 	}
-	glfwSwapBuffers(window);
-
-	//Update other events like input handling 
-	glfwPollEvents();
+	glfwSwapBuffers(glfwWindow);
 }
 
-RenderEnvironment::~RenderEnvironment() {
-	glfwDestroyWindow(window);
+Viewport::~Viewport() {
+	glfwDestroyWindow(glfwWindow);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
 }
 
-void RenderEnvironment::errorCallback(int error, const char* description) {
+void Viewport::errorCallback(int error, const char* description) {
 	fprintf(stderr, description);
 }
 
-void RenderEnvironment::windowSizeCallback(GLFWwindow* window, int width, int height) {
+void Viewport::windowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 	gl_height = height;
 	gl_width = width;
 	glViewport(0, 0, gl_width, gl_height);
