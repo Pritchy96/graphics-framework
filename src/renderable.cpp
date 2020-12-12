@@ -51,7 +51,6 @@ GLuint Renderable::getVAO() {
 
 		validVAO = true;
 	}
-
 	return vao;
 }
 
@@ -65,7 +64,7 @@ void Renderable::Draw(float deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMa
 		glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix;
 		shaderID = glGetUniformLocation(shader, "MVP"); 
 		glUniformMatrix4fv(shaderID, 1, GL_FALSE, &MVP[0][0]);
-
+	
 		glBindVertexArray(getVAO());
 		glDrawArrays(renderType, 0, vertexes.size());
 }
@@ -75,7 +74,7 @@ Renderable::Renderable(GLuint Shader, GLuint renderPrimative) {
 	renderType = renderPrimative;
 }
 
-//Uses Vert Data as placeholder Colour data too
+//Uses Vert Data as Colour data too (mostly for debug)
 Renderable::Renderable(GLuint Shader, vector<glm::vec3> vert_data, GLuint renderPrimative) {
 	shader = Shader;
 

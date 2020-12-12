@@ -4,7 +4,7 @@
     // #include "stdafx.h"
     #include <vector>
 
-    #include <GL/glew.h>
+
     #include <GLFW/glfw3.h>
     #include <glm/glm.hpp>
     #include <glm/gtc/matrix_transform.hpp>
@@ -13,10 +13,10 @@
     using namespace glm;
     using namespace std;
 
-    class renderEnvironment {
+    class Viewport {
         public:
-            renderEnvironment(glm::vec3 backgroundColour);
-            ~renderEnvironment();
+            Viewport(glm::vec3 backgroundColour);
+            ~Viewport();
 
             void addRenderable(Renderable* renderable);
             void update(float deltaT);
@@ -25,7 +25,13 @@
             static void errorCallback(int error, const char* description);
             static void windowSizeCallback(GLFWwindow* window, int width, int height);
             static void setFPSCounter(GLFWwindow* window, double deltaT);
-            
+
+            void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+            void mouseButtonCallback( GLFWwindow* window, int button, int action, int mods );
+            void cursorCallback( GLFWwindow* window, double x, double y );
+            void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+
+            GLFWwindow* glfwWindow;
             vector<Renderable*> renderables;
             GLuint tShader;      
     };

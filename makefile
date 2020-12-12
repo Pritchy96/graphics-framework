@@ -14,7 +14,7 @@ TARGET := $(TARGET_DIR)/gl_framework.so
 SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES := $(filter-out $(MAINS), $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRC_FILES)))
 
-all: glfw-test
+all: main
 
 init:
 	mkdir build bin
@@ -22,7 +22,7 @@ init:
 shared: $(OBJ_FILES)
 	$(CC) $(CXXSHAREDFLAGS) -o $(TARGET) $(LIBS) $^ $(LDFLAGS)
 
-glfw-test: $(OBJ_FILES) $(BUILD_DIR)/glfw-test.o
+main: $(OBJ_FILES) $(BUILD_DIR)/main.o
 	$(CC) $(CXXFLAGS) -o $(TARGET_DIR)/$@ $(LIBS) $^
 	cp -r $(SRC_DIR)/shaders $(TARGET_DIR)
 
