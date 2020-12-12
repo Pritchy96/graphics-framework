@@ -16,51 +16,46 @@
 
 #include "../include/shader.hpp"
 #include "../include/renderable.hpp"
-#include "../include/viewport_input.hpp"
+#include "../include/arcball.h"
 #include "../include/camera.hpp"
 
 using namespace std;
 using namespace glm;
 
-//Camera* camera;
 
 GLuint shaderID;
+GLuint basicShader;
 
 int gl_width = 1024;
 int gl_height = 768;
 
-vec3 initialCameraPos = glm::vec3(10, 10, 10);
-double rotate_y = 0; 
-double rotate_x = 0;
-double rotate_z = 0;
-
 double timeElapsed = 0;
 int framesElapsed = 0;
 
+Arcball* arcballCamera;
+Camera* camera;
+
 Renderable* renderAxis;
-
-GLuint basicShader;
-
 vector<vec3> axis_lines = {
-    vec3(0.0f, 0.0f, 0.0f),
+    vec3(0.0f, 0.0f, 0.0f),	//x
 	vec3(100.0f, 0.0f, 0.0f),
-	vec3(0.0f, 0.0f, 0.0f),
-	vec3(0.0f, 100.0f, 0.0f),    
-	vec3(0.0f, 0.0f, 0.0f),
+	vec3(0.0f, 0.0f, 0.0f),	//y	
+	vec3(0.0f, 100.0f, 0.0f), 
+	vec3(0.0f, 0.0f, 0.0f),	//z
 	vec3(0.0f, 0.0f, 100.0f)
 };
 
 vector<vec3> axis_colours = {
-    vec3(1.0f, 0.0f, 0.0f),
-	vec3(1.0f, 0.0f, 0.0f),
-	vec3(0.0f, 1.0f, 0.0f),    
+    vec3(1.0f, 0.0f, 0.0f),	//x
+	vec3(1.0f, 0.0f, 0.0f),	
+	vec3(0.0f, 1.0f, 0.0f), //y
 	vec3(0.0f, 1.0f, 0.0f),
-	vec3(0.0f, 0.0f, 1.0f),
+	vec3(0.0f, 0.0f, 1.0f),	//z
 	vec3(0.0f, 0.0f, 1.0f)
 };
 
-void Viewport::setFPSCounter(GLFWwindow* glfwWindow, double deltaT) {
-	timeElapsed += deltaT;
+void Viewport::setFPSCounter(GLFWwindow* glfwWindow, double deltaTime) {
+	timeElapsed += deltaTime;
 	framesElapsed++;
 
 	//If it's more than a quarter of a second, update fps.
@@ -76,7 +71,7 @@ void Viewport::setFPSCounter(GLFWwindow* glfwWindow, double deltaT) {
 	}
 }
 
-Viewport::Viewport(glm::vec3 backgroundColour) : ViewportInput(initialCameraPos) {
+Viewport::Viewport(glm::vec3 backgroundColour) {
 	if( !glfwInit() ) {
 		fprintf( stderr, "Failed to initialize GLFW\n" );
 	}
@@ -91,8 +86,8 @@ Viewport::Viewport(glm::vec3 backgroundColour) : ViewportInput(initialCameraPos)
 	
 	glfwWindow = glfwCreateWindow(gl_width, gl_height, "Render Window", NULL, NULL);
 
-	//Temp magic numbers derived from https://learnopengl.com/Getting-started/Camera
-	//camera = new Camera(gl_width, gl_height, glm::vec3(20, 20, 10), glm::vec3(20, 20, 10), glm::vec3(0.0f, 1.0f, 0.0f), glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(20, 20, 10))));
+	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
+	arcballCamera = new Arcball(camera, gl_width, gl_height, .015f);
 
 	if( !glfwWindow ) {
 		fprintf(stderr, "Failed to open GLFW window.\n" );
@@ -104,8 +99,8 @@ Viewport::Viewport(glm::vec3 backgroundColour) : ViewportInput(initialCameraPos)
 
 	glClearColor(backgroundColour.r, backgroundColour.g, backgroundColour.b, 0.01f);
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(2);
 	glLineWidth(4); //This doesn't work?
@@ -133,10 +128,8 @@ void Viewport::setupTransformShader(GLuint transformShader) {
 	tShader = transformShader;
 }
 
-void Viewport::update(float deltaT) {
-	ViewportInput::update(glfwWindow);
-	//viewportInput->update(glfwWindow);
-	setFPSCounter(glfwWindow, deltaT);
+void Viewport::update(float deltaTime) {
+	setFPSCounter(glfwWindow, deltaTime);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	vector<Renderable*>::iterator renderable = renderables.begin();
@@ -147,7 +140,7 @@ void Viewport::update(float deltaT) {
 			//iterator.erase gives the next item in the list.
 			renderable = renderables.erase(renderable);
 		} else {
-			(*renderable)->Draw(deltaT, getProjectionMatrix(), getViewMatrix());
+			(*renderable)->Draw(deltaTime, camera->getProjectionMatrix(), camera->getViewMatrix());
 			++renderable;
 		}
 	}
@@ -158,6 +151,40 @@ Viewport::~Viewport() {
 	glfwDestroyWindow(glfwWindow);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
+}
+
+void Viewport::mouseButtonCallback( GLFWwindow* window, int button, int action, int mods ){
+    arcballCamera->mouseButtonCallback(window, button, action, mods);
+}
+ 
+void Viewport::cursorCallback( GLFWwindow *window, double x, double y ) {
+    arcballCamera->cursorCallback(window, x, y);
+}
+
+void Viewport::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+	//Only allow zoom out if we're really close to the camera target
+	if (glm::length(camera->position - camera->target) > 4.0f || yoffset > 0)
+		camera->position = camera->position + (glm::normalize(camera->position - camera->target) * (float)yoffset * 1.0f);
+}
+	
+void Viewport::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	switch (key) {
+		case(GLFW_KEY_V) :
+			if (action == GLFW_PRESS) {
+				GLint mode[2];
+				glGetIntegerv(GL_POLYGON_MODE, mode);
+				if (mode[0] == GL_LINE) {
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					fprintf( stdout, "Switching View to GL_FILL.\n" );
+				} else {
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					fprintf( stdout, "Switching View to GL_LINE.\n" );
+				}
+			}
+			break;
+		default:
+			break;
+	} 
 }
 
 void Viewport::errorCallback(int error, const char* description) {

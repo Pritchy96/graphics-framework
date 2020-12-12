@@ -17,8 +17,18 @@ using namespace std;
 using namespace boost;
 
 vector<vec3> test_data_lines = {
-	vec3(0.000000, 4.000000, 12.000000),
-	vec3(2.870316, -101.411970, 1.000000),
+	glm::vec3(00.0, 00.0, 00.0),
+	glm::vec3(10.0, 00.0, 00.0),
+	glm::vec3(00.0, 10.0, 00.0),
+
+	glm::vec3(00.0, 00.0, 00.0),
+	glm::vec3(00.0, 00.0, 10.0),
+	glm::vec3(10.0, 00.0, 00.0),
+
+	glm::vec3(00.0, 00.0, 00.0),
+	glm::vec3(00.0, 10.0, 00.0),
+	glm::vec3(00.0, 00.0, 10.0)
+
 };
 
 auto oldTime = chrono::steady_clock::now(), newTime = chrono::steady_clock::now();
@@ -41,7 +51,7 @@ int main(int argc, const char* argv[]) {
 	glfwSetCursorPosCallback(renderer->glfwWindow, inputHandler->cursorCallback);
 
 	GLuint shader = Shader::LoadShaders("./bin/shaders/basic.vertshader", "./bin/shaders/basic.fragshader");
-    renderer->addRenderable(new Renderable(shader, test_data_lines, test_data_lines, GL_LINES));
+    renderer->addRenderable(new Renderable(shader, test_data_lines, test_data_lines, GL_TRIANGLES));
 	
     while (true) {  //TODO: Write proper update & exit logic.
 		oldTime = newTime;

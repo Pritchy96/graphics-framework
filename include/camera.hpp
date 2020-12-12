@@ -11,21 +11,28 @@
     #include <glm/gtx/rotate_vector.hpp>
     #include <glm/gtc/matrix_inverse.hpp>
 
-    using namespace glm;
+    using namespace glm;    
     using namespace std;
 
-    class Camera {
+    struct Camera {
         public:
-            int windowWidth, windowHeight;
-            glm::vec3 position, direction, up, right;   //Everything we need to represent a camera?
+            glm::vec3 position, up, target;  
 
-            Camera(int window_width, int window_height, glm::vec3 initial_position, glm::vec3 initial_direction, glm::vec3 initial_up, glm::vec3 initial_right);
+            Camera(glm::vec3 initial_position, glm::vec3 initial_direction, glm::vec3 initial_up);
             ~Camera();
 
-            // glm::vec3 toScreenCoord(double x, double y);
-            // void update(float deltaTime) {};
-            // glm::mat4 createViewRotationMatrix();
-            // glm::mat4 createModelRotationMatrix(glm::mat4& view_matrix);     
+            mat4 getViewMatrix(); 
+            mat4 getProjectionMatrix();
+
+            //Set the target to a unit vector from the camera in the requesed direction 
+            void setDirection(vec3 direction) {
+                 target = position + glm::normalize(direction);   
+            }
+
+            //Get the direction of the target from the camera
+            vec3 getDirection() {
+                return target - position;
+            } 
     };
 
 #endif

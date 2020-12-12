@@ -1,7 +1,6 @@
 //Figure out where the users focus is, then send over input to the relevant handler.
 //Also handle generic requests i.e key shortcuts which should happen regardless of focus.
 
-// #include "stdafx.h"
 #include <stdio.h>
 
 #include <GL/glew.h>
@@ -19,8 +18,6 @@ Viewport *activeRenderer;
 int windowWidth, windowHeight;
 
 InputHandler::InputHandler(Viewport default_renderer) {
-    //currentFrameTime = lastFrameTime = glfwGetTime();
-    //glfwGetWindowSize(window, &windowWidth, &windowHeight);
     activeRenderer = &default_renderer;
 }
 
