@@ -1,31 +1,39 @@
 #ifndef INPUTHANDLER_HPP
 #define INPUTHANDLER_HPP
 
-    #include <iostream>
+#include <iostream>
 
-    #include <GL/glew.h>
-    #include <GLFW/glfw3.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 
-    #include <glm/glm.hpp>
-    #include <glm/gtc/type_ptr.hpp>
-    #include <glm/gtc/matrix_transform.hpp>
-    #include <glm/gtx/rotate_vector.hpp>
-    #include <glm/gtc/matrix_inverse.hpp>
+#include "./camera.hpp"
 
-    #include "./viewport.hpp"
-
-    using namespace glm;
-    using namespace std;
-
-    class InputHandler {
-        public:
-            InputHandler(Viewport default_renderer);
-            ~InputHandler();
-
-            static void mouseButtonCallback(GLFWwindow * window, int button, int action, int mods);
-            static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-            static void cursorCallback(GLFWwindow *window, double x, double y);
-            static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+class InputHandler {
+protected: 
+    Camera* camera;
+    int windowWidth;
+    int windowHeight;
+public:
+    InputHandler(Camera* camera, int window_width, int window_height) {
+        this->windowWidth  = window_width;
+        this->windowHeight = window_height;
+        this->camera = camera;
     };
+    
+    virtual void scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {};
+    virtual void cursorCallback(GLFWwindow *window, double x, double y) {};
+    virtual void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {};
 
-#endif
+    void windowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+        this->windowHeight = height;
+        this->windowWidth  = width; 
+    }
+
+    virtual glm::mat4 createViewRotationMatrix() {};
+};
+
+#endif 

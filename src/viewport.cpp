@@ -16,7 +16,8 @@
 
 #include "../include/shader.hpp"
 #include "../include/renderable.hpp"
-#include "../include/arcball.h"
+#include "../include/arcball.hpp"
+#include "../include/input_handler.hpp"
 #include "../include/camera.hpp"
 
 using namespace std;
@@ -32,6 +33,7 @@ int gl_height = 768;
 double timeElapsed = 0;
 int framesElapsed = 0;
 
+vector<InputHandler*> inputHandlers;
 Arcball* arcballCamera;
 Camera* camera;
 
@@ -88,6 +90,7 @@ Viewport::Viewport(glm::vec3 backgroundColour) {
 
 	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
 	arcballCamera = new Arcball(camera, gl_width, gl_height, .015f);
+	inputHandlers.push_back(arcballCamera);
 
 	if( !glfwWindow ) {
 		fprintf(stderr, "Failed to open GLFW window.\n" );
@@ -154,17 +157,25 @@ Viewport::~Viewport() {
 }
 
 void Viewport::mouseButtonCallback( GLFWwindow* window, int button, int action, int mods ){
-    arcballCamera->mouseButtonCallback(window, button, action, mods);
+	for (InputHandler* i : inputHandlers) {
+    	i->mouseButtonCallback(window, button, action, mods);
+	}
 }
  
 void Viewport::cursorCallback( GLFWwindow *window, double x, double y ) {
-    arcballCamera->cursorCallback(window, x, y);
+	for (InputHandler* i : inputHandlers) {
+    	i->cursorCallback(window, x, y);
+	}
 }
 
 void Viewport::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	//Only allow zoom out if we're really close to the camera target
 	if (glm::length(camera->position - camera->target) > 4.0f || yoffset > 0)
 		camera->position = camera->position + (glm::normalize(camera->position - camera->target) * (float)yoffset * 1.0f);
+
+	for (InputHandler* i : inputHandlers) {
+		i->scrollCallback(window, xoffset, yoffset);
+	}
 }
 	
 void Viewport::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -195,4 +206,8 @@ void Viewport::windowSizeCallback(GLFWwindow* glfwWindow, int width, int height)
 	gl_height = height;
 	gl_width = width;
 	glViewport(0, 0, gl_width, gl_height);
+
+	for (InputHandler* i : inputHandlers) {
+		i->windowSizeCallback(glfwWindow, width, height);
+	}
 }

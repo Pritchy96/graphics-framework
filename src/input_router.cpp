@@ -7,7 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "../include/input_handler.hpp"
+#include "../include/input_router.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 
@@ -17,23 +17,23 @@ using namespace std;
 Viewport *activeRenderer;
 int windowWidth, windowHeight;
 
-InputHandler::InputHandler(Viewport default_renderer) {
+InputRouter::InputRouter(Viewport default_renderer) {
     activeRenderer = &default_renderer;
 }
 
-void InputHandler::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+void InputRouter::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     activeRenderer->mouseButtonCallback(window, button, action, mods);
 }
  
-void InputHandler::cursorCallback(GLFWwindow *window, double x, double y) {
+void InputRouter::cursorCallback(GLFWwindow *window, double x, double y) {
     activeRenderer->cursorCallback(window, x, y);
 }
 
-void InputHandler::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+void InputRouter::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	activeRenderer->scrollCallback(window, xoffset, yoffset);
 }
 	
-void InputHandler::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void InputRouter::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	switch (key) {
 		case(GLFW_KEY_ESCAPE) :
 			exit(0);

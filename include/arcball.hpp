@@ -1,5 +1,5 @@
-#ifndef __Arcball__Arcball__
-#define __Arcball__Arcball__
+#ifndef ARCBALL_HPP
+#define ARCBALL_HPP
 
 #include <iostream>
 
@@ -10,12 +10,11 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
+#include "./input_handler.hpp"
 #include "./camera.hpp"
 
-class Arcball {
+class Arcball : public InputHandler {
 private:
-    int windowWidth;
-    int windowHeight;
     int leftMouseButtonDown;
     GLfloat rotateSpeed;
     GLfloat angle ;
@@ -26,19 +25,15 @@ private:
     
     bool xAxis;
     bool yAxis;
-
-    Camera* camera;
     
 public:
     Arcball(Camera* camera, int window_width, int window_height, GLfloat rotate_speed = 1.0f);
     glm::vec3 toScreenCoord( double x, double y );
     
-    void mouseButtonCallback( GLFWwindow * window, int button, int action, int mods );
-    void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-    void cursorCallback( GLFWwindow *window, double x, double y );
+    void mouseButtonCallback(GLFWwindow * window, int button, int action, int mods) override;
+    void cursorCallback(GLFWwindow *window, double x, double y) override;
 
     glm::mat4 createViewRotationMatrix();
-    
 };
 
 #endif 

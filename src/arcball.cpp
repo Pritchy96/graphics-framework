@@ -1,37 +1,32 @@
 #include <glm/gtx/rotate_vector.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include "../include/arcball.h"
+#include "../include/arcball.hpp"
 #include "../include/camera.hpp"
 
-Arcball::Arcball(Camera* camera, int window_width, int window_height, GLfloat rotate_speed) {
-    this->windowWidth  = window_width;
-    this->windowHeight = window_height;
-    
+Arcball::Arcball(Camera* camera, int window_width, int window_height, GLfloat rotate_speed) : InputHandler(camera, window_width, window_height) {    
     this->leftMouseButtonDown = 0;
     this->rotateSpeed  = rotate_speed;
     this->angle      = 0.0f;
     this->camAxis    = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    this->camera = camera;
 }
 
 /**
  * Convert the mouse cursor coordinate on the window (i.e. from (0,0) to (windowWidth, windowHeight))
  * into normalized screen coordinates (i.e. (-1, -1) to (1, 1)
  */
-glm::vec3 Arcball::toScreenCoord( double x, double y ) {
+glm::vec3 Arcball::toScreenCoord(double x, double y) {
     glm::vec3 coord(0.0f);
     
     coord.x =  (2 * x - windowWidth ) / windowWidth;
     coord.y = -(2 * y - windowHeight) / windowHeight;
     
     /* Clamp it to border of the windows, comment these codes to allow rotation when cursor is not over window */
-    coord.x = glm::clamp( coord.x, -1.0f, 1.0f );
-    coord.y = glm::clamp( coord.y, -1.0f, 1.0f );
+    coord.x = glm::clamp(coord.x, -1.0f, 1.0f);
+    coord.y = glm::clamp(coord.y, -1.0f, 1.0f);
     
     float length_squared = coord.x * coord.x + coord.y * coord.y;
     if( length_squared <= 1.0 )
-        coord.z = sqrt( 1.0 - length_squared );
+        coord.z = sqrt(1.0 - length_squared);
     else
         coord = glm::normalize( coord );
     

@@ -10,7 +10,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "../include/viewport.hpp"
-#include "../include/input_handler.hpp"
+#include "../include/input_router.hpp"
 #include "../include/shader.hpp"
 
 using namespace std;
@@ -34,7 +34,7 @@ vector<vec3> test_data_lines = {
 auto oldTime = chrono::steady_clock::now(), newTime = chrono::steady_clock::now();
 double deltaT;	
 Viewport *renderer;	
-InputHandler *inputHandler;
+InputRouter *inputRouter;
 
 int main(int argc, const char* argv[]) {
 
@@ -42,13 +42,14 @@ int main(int argc, const char* argv[]) {
     cout << "Launching Program" << endl;
 
     renderer = new Viewport(glm::vec3(0.7f, 0.7f, 0.7f));
+
     cout << "Initialised Viewport" << endl;
 
 	glfwSetInputMode(renderer->glfwWindow, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetKeyCallback(renderer->glfwWindow, inputHandler->keyCallback);
-	glfwSetMouseButtonCallback(renderer->glfwWindow, inputHandler->mouseButtonCallback);
-	glfwSetScrollCallback(renderer->glfwWindow, inputHandler->scrollCallback);
-	glfwSetCursorPosCallback(renderer->glfwWindow, inputHandler->cursorCallback);
+    glfwSetKeyCallback(renderer->glfwWindow, inputRouter->keyCallback);
+	glfwSetMouseButtonCallback(renderer->glfwWindow, inputRouter->mouseButtonCallback);
+	glfwSetScrollCallback(renderer->glfwWindow, inputRouter->scrollCallback);
+	glfwSetCursorPosCallback(renderer->glfwWindow, inputRouter->cursorCallback);
 
 	GLuint shader = Shader::LoadShaders("./bin/shaders/basic.vertshader", "./bin/shaders/basic.fragshader");
     renderer->addRenderable(new Renderable(shader, test_data_lines, test_data_lines, GL_TRIANGLES));
