@@ -1,14 +1,7 @@
-#include <glm/gtx/rotate_vector.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include "../include/arcball.hpp"
-#include "../include/camera.hpp"
+#include "arcball.hpp"
 
-Arcball::Arcball(Camera* camera, int window_width, int window_height, GLfloat rotate_speed) : InputHandler(camera, window_width, window_height) {    
-    this->leftMouseButtonDown = 0;
-    this->rotateSpeed  = rotate_speed;
-    this->angle      = 0.0f;
-    this->camAxis    = glm::vec3(0.0f, 1.0f, 0.0f);
-}
+Arcball::Arcball(Camera* camera, int window_width, int window_height, GLfloat rotate_speed) 
+    : InputHandler(camera, window_width, window_height), rotateSpeed(rotate_speed) {}
 
 /**
  * Convert the mouse cursor coordinate on the window (i.e. from (0,0) to (windowWidth, windowHeight))
@@ -57,7 +50,7 @@ void Arcball::cursorCallback( GLFWwindow *window, double x, double y ){
     } else if (prevPos == currPos) {    
        angle = 0;
     }
-    
+     
     prevPos = currPos;
 }
 

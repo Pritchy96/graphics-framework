@@ -1,28 +1,7 @@
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtx/string_cast.hpp>
-
-#include "../include/viewport.hpp"	
-
-#include "../include/shader.hpp"
-#include "../include/renderable.hpp"
-#include "../include/arcball.hpp"
-#include "../include/input_handler.hpp"
-#include "../include/camera.hpp"
+#include "viewport.hpp"	
 
 using namespace std;
 using namespace glm;
-
 
 GLuint shaderID;
 GLuint basicShader;
@@ -40,11 +19,11 @@ Camera* camera;
 Renderable* renderAxis;
 vector<vec3> axis_lines = {
     vec3(0.0f, 0.0f, 0.0f),	//x
-	vec3(100.0f, 0.0f, 0.0f),
+	vec3(10.0f, 0.0f, 0.0f),
 	vec3(0.0f, 0.0f, 0.0f),	//y	
-	vec3(0.0f, 100.0f, 0.0f), 
+	vec3(0.0f, 10.0f, 0.0f), 
 	vec3(0.0f, 0.0f, 0.0f),	//z
-	vec3(0.0f, 0.0f, 100.0f)
+	vec3(0.0f, 0.0f, 10.0f)
 };
 
 vector<vec3> axis_colours = {
@@ -118,7 +97,7 @@ Viewport::Viewport(glm::vec3 backgroundColour) {
 		glfwTerminate();
 	}
 	
-	basicShader = Shader::LoadShaders("./bin/shaders/basic.vertshader", "./bin/shaders/basic.fragshader");
+	basicShader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
     renderAxis = new Renderable(basicShader, axis_lines, axis_colours, GL_LINES);
 	addRenderable(renderAxis);
 }

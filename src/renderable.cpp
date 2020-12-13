@@ -1,15 +1,4 @@
-// #include "stdafx.h"
-#include <iostream>
-#include <stdio.h>
-
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
-
-#include "../include/renderable.hpp"
+#include "renderable.hpp"
 
 using namespace glm;
 using namespace std;

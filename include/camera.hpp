@@ -2,9 +2,8 @@
 #define CAMERA_HPP
 
     #include <iostream>
-
+    #include <GL/glew.h>
     #include <GLFW/glfw3.h>
-
     #include <glm/glm.hpp>
     #include <glm/gtc/type_ptr.hpp>
     #include <glm/gtc/matrix_transform.hpp>
@@ -16,7 +15,7 @@
 
     struct Camera {
         public:
-            glm::vec3 position, up, target;  
+            glm::vec3 position, target, up;  
 
             Camera(glm::vec3 initial_position, glm::vec3 initial_direction, glm::vec3 initial_up);
             ~Camera();

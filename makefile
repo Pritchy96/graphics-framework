@@ -1,11 +1,12 @@
 CC := g++
 CXXSHAREDFLAGS := -Wall -fPIC -std=c++11 -MMD -MP
-CXXFLAGS := -Wall -std=c++11 -g
+CXXFLAGS := -Wall -std=c++11 -g 
+CPPFLAGS := -Iinclude
 
-LDFLAGS      = -shared
-LIBS := -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -lGLEW \
-		  -lboost_system -lboost_filesystem
+LDFLAGS = -shared
+LIBS := -lGL -lGLU -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -lGLEW -lboost_system -lboost_filesystem
 
+INC_DIR = ./include
 SRC_DIR := ./src
 BUILD_DIR := ./build
 TARGET_DIR := ./bin
@@ -23,12 +24,11 @@ shared: $(OBJ_FILES)
 	$(CC) $(CXXSHAREDFLAGS) -o $(TARGET) $(LIBS) $^ $(LDFLAGS)
 
 main: $(OBJ_FILES) $(BUILD_DIR)/main.o
-	$(CC) $(CXXFLAGS) -o $(TARGET_DIR)/$@ $(LIBS) $^
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -o $(TARGET_DIR)/$@ $(LIBS) $^ 
 	cp -r $(SRC_DIR)/shaders $(TARGET_DIR)
 
-
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC) $(CXXFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 clean:
 	rm $(BUILD_DIR)/*.o

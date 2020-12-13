@@ -6,28 +6,28 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#define GLM_ENABLE_EXPERIMENTAL //gtx = gt eXperimental?
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
-#include "../include/viewport.hpp"
-#include "../include/input_router.hpp"
-#include "../include/shader.hpp"
+#include "viewport.hpp"
+#include "input_router.hpp"
+#include "shader.hpp"
 
 using namespace std;
 using namespace boost;
 
 vector<vec3> test_data_lines = {
 	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(10.0, 00.0, 00.0),
-	glm::vec3(00.0, 10.0, 00.0),
+	glm::vec3(2.0, 00.0, 00.0),
+	glm::vec3(00.0, 2.0, 00.0),
 
 	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(00.0, 00.0, 10.0),
-	glm::vec3(10.0, 00.0, 00.0),
+	glm::vec3(00.0, 00.0, 2.0),
+	glm::vec3(2.0, 00.0, 00.0),
 
 	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(00.0, 10.0, 00.0),
-	glm::vec3(00.0, 00.0, 10.0)
+	glm::vec3(00.0, 2.0, 00.0),
+	glm::vec3(00.0, 00.0, 2.0)
 
 };
 
@@ -51,7 +51,7 @@ int main(int argc, const char* argv[]) {
 	glfwSetScrollCallback(renderer->glfwWindow, inputRouter->scrollCallback);
 	glfwSetCursorPosCallback(renderer->glfwWindow, inputRouter->cursorCallback);
 
-	GLuint shader = Shader::LoadShaders("./bin/shaders/basic.vertshader", "./bin/shaders/basic.fragshader");
+	GLuint shader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
     renderer->addRenderable(new Renderable(shader, test_data_lines, test_data_lines, GL_TRIANGLES));
 	
     while (true) {  //TODO: Write proper update & exit logic.
