@@ -19,6 +19,7 @@
 
     #include "shader.hpp"
     #include "renderable.hpp"
+    #include "viewport_grid.hpp"
     #include "arcball.hpp"
     #include "input_handler.hpp"
     #include "camera.hpp"

@@ -14,5 +14,5 @@
         GLuint LoadShaders(char* vertex_file_path, char* fragment_file_path);
         GLuint LoadTransformShader(char * path);
         std::string LoadFileFromDisk(char* path);
-    }
+    };
 #endif

@@ -16,12 +16,19 @@
     struct Camera {
         public:
             glm::vec3 position, target, up;  
+            glm::mat4 viewMatrix, projectionMatrix, defaultView, rotationMatrix;
+            bool orthoNotPerspective;
 
-            Camera(glm::vec3 initial_position, glm::vec3 initial_direction, glm::vec3 initial_up);
+            Camera(glm::vec3 initial_position, glm::vec3 initial_direction, glm::vec3 initial_up, int window_width, int window_height);
             ~Camera();
 
             mat4 getViewMatrix(); 
             mat4 getProjectionMatrix();
+
+            void SetProjection(bool isOrthoNotPerspective);
+
+            void  SetZoom(float new_zoom);
+            float GetZoom();
 
             //Set the target to a unit vector from the camera in the requesed direction 
             void setDirection(vec3 direction) {
@@ -32,6 +39,8 @@
             vec3 getDirection() {
                 return target - position;
             } 
+        private: 
+            float zoom = 90.0f;
     };
 
 #endif

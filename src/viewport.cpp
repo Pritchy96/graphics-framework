@@ -17,6 +17,8 @@ Arcball* arcballCamera;
 Camera* camera;
 
 Renderable* renderAxis;
+ViewportGrid* grid;
+
 vector<vec3> axis_lines = {
     vec3(0.0f, 0.0f, 0.0f),	//x
 	vec3(10.0f, 0.0f, 0.0f),
@@ -67,7 +69,7 @@ Viewport::Viewport(glm::vec3 backgroundColour) {
 	
 	glfwWindow = glfwCreateWindow(gl_width, gl_height, "Render Window", NULL, NULL);
 
-	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
+	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f), gl_width, gl_height);
 	arcballCamera = new Arcball(camera, gl_width, gl_height, .015f);
 	inputHandlers.push_back(arcballCamera);
 
@@ -99,6 +101,9 @@ Viewport::Viewport(glm::vec3 backgroundColour) {
 	
 	basicShader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
     renderAxis = new Renderable(basicShader, axis_lines, axis_colours, GL_LINES);
+	grid = new ViewportGrid(80, 80, 4, 4, basicShader);
+
+	addRenderable(grid);
 	addRenderable(renderAxis);
 }
 
@@ -150,7 +155,7 @@ void Viewport::cursorCallback( GLFWwindow *window, double x, double y ) {
 void Viewport::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	//Only allow zoom out if we're really close to the camera target
 	if (glm::length(camera->position - camera->target) > 4.0f || yoffset > 0)
-		camera->position = camera->position + (glm::normalize(camera->position - camera->target) * (float)yoffset * 1.0f);
+		camera->SetZoom(camera->GetZoom() + (yoffset*1.0f));
 
 	for (InputHandler* i : inputHandlers) {
 		i->scrollCallback(window, xoffset, yoffset);
@@ -172,6 +177,13 @@ void Viewport::keyCallback(GLFWwindow* window, int key, int scancode, int action
 				}
 			}
 			break;
+
+		case(GLFW_KEY_C) :
+			if(action == GLFW_PRESS) {
+				camera->SetProjection(!camera->orthoNotPerspective);
+			}
+			break;
+
 		default:
 			break;
 	} 
