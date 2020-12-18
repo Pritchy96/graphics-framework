@@ -21,11 +21,11 @@ ViewportGrid* grid;
 
 vector<vec3> axis_lines = {
     vec3(0.0f, 0.0f, 0.0f),	//x
-	vec3(10.0f, 0.0f, 0.0f),
+	vec3(500.0f, 0.0f, 0.0f),
 	vec3(0.0f, 0.0f, 0.0f),	//y	
-	vec3(0.0f, 10.0f, 0.0f), 
+	vec3(0.0f, 500.0f, 0.0f), 
 	vec3(0.0f, 0.0f, 0.0f),	//z
-	vec3(0.0f, 0.0f, 10.0f)
+	vec3(0.0f, 0.0f, 500.0f)
 };
 
 vector<vec3> axis_colours = {
@@ -101,7 +101,7 @@ Viewport::Viewport(glm::vec3 backgroundColour) {
 	
 	basicShader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
     renderAxis = new Renderable(basicShader, axis_lines, axis_colours, GL_LINES);
-	grid = new ViewportGrid(80, 80, 4, 4, basicShader);
+	grid = new ViewportGrid(80, 80, 40, 40, basicShader);
 
 	addRenderable(grid);
 	addRenderable(renderAxis);

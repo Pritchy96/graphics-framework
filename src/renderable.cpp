@@ -47,7 +47,7 @@ void Renderable::Draw(float deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMa
 		glUseProgram(shader);
 
 		GLuint shaderID = glGetUniformLocation(shader, "scale");
-		glUniformMatrix4fv(shaderID, 1, GL_FALSE, &scaleMatrix[0][0]);
+		//glUniformMatrix4fv(shaderID, 1, GL_FALSE, &scaleMatrix[0][0]);
 		
 		//TODO: Pass through and do multiplication GPU side?
 		glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix;
