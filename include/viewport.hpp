@@ -8,6 +8,7 @@
 
     #define GLM_ENABLE_EXPERIMENTAL
     #include <GL/glew.h>
+    #include <GL/glxmd.h>
     #include <GLFW/glfw3.h>
     #include <glm/glm.hpp>
     #include <glm/gtc/matrix_transform.hpp>
@@ -29,25 +30,39 @@
 
     class Viewport {
         public:
-            Viewport(glm::vec3 backgroundColour);
+            Viewport(GLFWwindow *window, glm::vec3 backgroundColour);
             ~Viewport();
 
             void addRenderable(Renderable* renderable);
             void update(float deltaT);
             void setupTransformShader(GLuint transformShader);   
             
-            static void errorCallback(int error, const char* description);
-            static void windowSizeCallback(GLFWwindow* window, int width, int height);
-            static void setFPSCounter(GLFWwindow* window, double deltaT);
-
+            void windowSizeCallback(GLFWwindow* window, int width, int height);
+            void setFPSCounter(GLFWwindow* window, double deltaT);
             void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
             void mouseButtonCallback( GLFWwindow* window, int button, int action, int mods );
             void cursorCallback( GLFWwindow* window, double x, double y );
             void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
-            GLFWwindow* glfwWindow;
+            GLFWwindow *glfwWindow;
             vector<Renderable*> renderables;
             GLuint tShader;      
+
+
+            GLuint shaderID;
+            GLuint basicShader;
+
+            int width = -1, height = -1;
+
+            double timeElapsed = 0;
+            int framesElapsed = 0;
+
+            vector<InputHandler*> inputHandlers;
+            Arcball* arcballCamera;
+            Camera* camera;
+
+            Renderable* renderAxis;
+            ViewportGrid* grid;
     };
 
 #endif

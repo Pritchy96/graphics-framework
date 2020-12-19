@@ -74,9 +74,7 @@ Renderable::Renderable(GLuint Shader, vector<glm::vec3> vert_data, GLuint render
 
 Renderable::Renderable(GLuint Shader, vector<glm::vec3> vert_data, vector<glm::vec3> colour_data, GLuint renderPrimative) {
 	shader = Shader;
-
 	vertexes = vert_data;
 	colours = colour_data;
 	renderType = renderPrimative;
-
 }

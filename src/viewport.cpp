@@ -3,22 +3,6 @@
 using namespace std;
 using namespace glm;
 
-GLuint shaderID;
-GLuint basicShader;
-
-int gl_width = 1024;
-int gl_height = 768;
-
-double timeElapsed = 0;
-int framesElapsed = 0;
-
-vector<InputHandler*> inputHandlers;
-Arcball* arcballCamera;
-Camera* camera;
-
-Renderable* renderAxis;
-ViewportGrid* grid;
-
 vector<vec3> axis_lines = {
     vec3(0.0f, 0.0f, 0.0f),	//x
 	vec3(500.0f, 0.0f, 0.0f),
@@ -54,23 +38,14 @@ void Viewport::setFPSCounter(GLFWwindow* glfwWindow, double deltaTime) {
 	}
 }
 
-Viewport::Viewport(glm::vec3 backgroundColour) {
-	if( !glfwInit() ) {
-		fprintf( stderr, "Failed to initialize GLFW\n" );
-	}
+Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
+    cout << "Initialised Viewport" << endl;
+	glfwWindow = glfw_window;
 
-	glfwSetErrorCallback(errorCallback);
+	glfwGetWindowSize(glfw_window, &width, &height);
 
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); //For MacOS compat, apparrently 
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	
-	glfwWindow = glfwCreateWindow(gl_width, gl_height, "Render Window", NULL, NULL);
-
-	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f), gl_width, gl_height);
-	arcballCamera = new Arcball(camera, gl_width, gl_height, .015f);
+	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f), width, height);
+	arcballCamera = new Arcball(camera, width, height, .015f);
 	inputHandlers.push_back(arcballCamera);
 
 	if( !glfwWindow ) {
@@ -78,16 +53,17 @@ Viewport::Viewport(glm::vec3 backgroundColour) {
 		glfwTerminate();
 	}
 
-	glfwSetWindowSizeCallback(glfwWindow, windowSizeCallback);
+	//TODO: Move everything dependent ont his (gl calls, shader loads etc) to an init() function so this context setting can be done 
+	//in main.cpp
 	glfwMakeContextCurrent(glfwWindow);
 
-	glClearColor(backgroundColour.r, backgroundColour.g, backgroundColour.b, 0.01f);
+	glClearColor(background_colour.r, background_colour.g, background_colour.b, 0.01f);
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(2);
-	glLineWidth(4); //This doesn't work?
+	glLineWidth(4); //TODO: This doesn't work?
 
 	glEnable(GL_CULL_FACE);
 	glDepthFunc(GL_LESS); //Depth-testing interprets a smaller value as "closer"
@@ -189,14 +165,10 @@ void Viewport::keyCallback(GLFWwindow* window, int key, int scancode, int action
 	} 
 }
 
-void Viewport::errorCallback(int error, const char* description) {
-	fprintf(stderr, description);
-}
-
 void Viewport::windowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	gl_height = height;
-	gl_width = width;
-	glViewport(0, 0, gl_width, gl_height);
+	height = height;
+	width = width;
+	glViewport(0, 0, width, height);
 
 	for (InputHandler* i : inputHandlers) {
 		i->windowSizeCallback(glfwWindow, width, height);

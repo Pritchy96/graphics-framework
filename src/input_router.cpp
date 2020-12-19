@@ -5,22 +5,39 @@
 using namespace glm;
 using namespace std;
 
-Viewport *activeRenderer;
+Viewport *activeViewport;
 
-InputRouter::InputRouter(Viewport default_renderer) {
-	activeRenderer = &default_renderer;
+Viewport* InputRouter::GetActiveViewport() {
+	return activeViewport;
+}
+
+void InputRouter::SetActiveViewport(Viewport* active_viewport) {
+	activeViewport = active_viewport;
+	glfwMakeContextCurrent(activeViewport->glfwWindow);
+}
+
+InputRouter::InputRouter(Viewport* active_viewport) {
+	SetActiveViewport(active_viewport);
 }
 
 void InputRouter::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-    activeRenderer->mouseButtonCallback(window, button, action, mods);
+	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+    activeViewport->mouseButtonCallback(window, button, action, mods);
 }
  
 void InputRouter::cursorCallback(GLFWwindow *window, double x, double y) {
-    activeRenderer->cursorCallback(window, x, y);
+	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+    activeViewport->cursorCallback(window, x, y);
 }	
 
 void InputRouter::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-	activeRenderer->scrollCallback(window, xoffset, yoffset);
+	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+	activeViewport->scrollCallback(window, xoffset, yoffset);
+}
+
+void InputRouter::windowSizeCallback(GLFWwindow* window, int width, int height) {
+	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+	activeViewport->scrollCallback(window, width, height);
 }
 	
 void InputRouter::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -28,7 +45,10 @@ void InputRouter::keyCallback(GLFWwindow* window, int key, int scancode, int act
 		case(GLFW_KEY_ESCAPE) :
 			exit(0);
 			break;
-		default:
-			activeRenderer->keyCallback(window, key, scancode, action, mods);
+		default: 
+		    // retrieve MyWindow object from glfw window
+        	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+			activeViewport->keyCallback(window, key, scancode, action, mods);
+		break;
 	}
 }
