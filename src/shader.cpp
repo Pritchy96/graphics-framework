@@ -124,7 +124,6 @@ GLuint Shader::LoadTransformShader(char* path){
     Varyings[2] = "out_age";
 
 	glTransformFeedbackVaryings(ProgramID, 3, Varyings, GL_SEPARATE_ATTRIBS);
-    // glTransformFeedbackVaryings(ProgramID, 1, Varyings, GL_INTERLEAVED_ATTRIBS);
 
 	glLinkProgram(ProgramID); 
 	glUseProgram(ProgramID);
