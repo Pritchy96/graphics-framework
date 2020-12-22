@@ -41,6 +41,8 @@ void Viewport::setFPSCounter(GLFWwindow* glfwWindow, double deltaTime) {
 Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
     cout << "Initialised Viewport" << endl;
 	glfwWindow = glfw_window;
+	//masterGeometry = master_geometry;
+	//TODO: add existing geo to geoRenderablePairs.
 
 	glfwGetWindowSize(glfw_window, &width, &height);
 
@@ -76,15 +78,15 @@ Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
 	}
 	
 	basicShader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
-    renderAxis = new Renderable(basicShader, axis_lines, axis_colours, GL_LINES);
-	grid = new ViewportGrid(80, 80, 40, 40, basicShader);
 
-	addRenderable(grid);
-	addRenderable(renderAxis);
+    renderAxis = make_shared<Geometry>(axis_lines, axis_colours);
+	grid = make_shared<ViewportGrid>(80, 80, 40, 40, basicShader);
+	addPrivateGeometry(grid);
+	addPrivateGeometry(renderAxis); 	
 }
 
-void Viewport::addRenderable(Renderable* renderable) {
-	renderables.push_back(renderable);
+void Viewport::addPrivateGeometry(shared_ptr<Geometry> geometry) {
+	// privateGeometry.push_back(geometry);
 }
 
 void Viewport::setupTransformShader(GLuint transformShader) {
@@ -95,18 +97,55 @@ void Viewport::update(float deltaTime) {
 	setFPSCounter(glfwWindow, deltaTime);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	vector<Renderable*>::iterator renderable = renderables.begin();
+	vector<pair<weak_ptr<Geometry>, shared_ptr<Renderable>>>::iterator geoRenderable = geoRenderablePairs.begin();
 
-	while(renderable != renderables.end()) {
-		if((*renderable)->isDead) {
-			delete(*renderable);
+	while(geoRenderable != geoRenderablePairs.end()) {
+		//Geo is dead, nuke the map link
+		if (geoRenderable->first.expired()) {
 			//iterator.erase gives the next item in the list.
-			renderable = renderables.erase(renderable);
-		} else {
-			(*renderable)->Draw(deltaTime, camera->getProjectionMatrix(), camera->getViewMatrix());
-			++renderable;
+			geoRenderable = geoRenderablePairs.erase(geoRenderable);
+			continue;
 		}
+
+		if (geoRenderable->second == NULL) {
+			//Renderable for geo doesn't exist, make one.
+			geoRenderable->second = make_unique<Renderable>(basicShader, geoRenderable->first, GL_TRIANGLES);
+		}
+
+		shared_ptr<Geometry> geometry = geoRenderable->first.lock();
+		shared_ptr<Renderable> renderable = geoRenderable->second;
+
+
+		if (geometry->buffersInvalid) {
+			renderable->validVAO = false;
+		}
+
+		renderable->Draw(deltaTime, camera->getProjectionMatrix(), camera->getViewMatrix());
+		++geoRenderable;
 	}
+
+	//TODO: Private geo
+	// vector<shared_ptr<Geometry>>::iterator geoItr = masterGeometry->begin();
+	// shared_ptr<Geometry> geometry;
+	
+	// while(geoItr != masterGeometry->end()) {
+	// 	geometry = (*geoItr);
+	
+
+	// } 
+	
+	// renderable = privateRenderables.begin() ;
+
+	// while(renderable != privateRenderables.end()) {
+	// 	if((*renderable)->isDead) {
+	// 		delete(*renderable);
+	// 		//iterator.erase gives the next item in the list.
+	// 		renderable = privateRenderables.erase(renderable);
+	// 	} else {
+	// 		(*renderable)->Draw(deltaTime, camera->getProjectionMatrix(), camera->getViewMatrix());
+	// 		++renderable;
+	// 	}
+	// }
 	glfwSwapBuffers(glfwWindow);
 }
 

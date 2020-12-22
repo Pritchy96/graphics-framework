@@ -2,6 +2,7 @@
 #define INPUTROUTER_HPP
 
     #include <iostream>
+    #include <memory>
     #include <GL/glew.h>
     #include <GLFW/glfw3.h>
     #include <glm/glm.hpp>
@@ -17,12 +18,11 @@
 
     class InputRouter {
         public:
-            InputRouter(Viewport* active_viewport);
+            InputRouter(shared_ptr<Viewport> active_viewport);
             InputRouter() {};
-            ~InputRouter();
 
-            static Viewport* GetActiveViewport();
-            static void SetActiveViewport(Viewport* active_viewport);
+            static shared_ptr<Viewport> GetActiveViewport();
+            static void SetActiveViewport(shared_ptr<Viewport> active_viewport);
             static void mouseButtonCallback(GLFWwindow * window, int button, int action, int mods);
             static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
             static void cursorCallback(GLFWwindow *window, double x, double y);

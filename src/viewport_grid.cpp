@@ -3,7 +3,7 @@
 using namespace glm;
 using namespace std;
 
-ViewportGrid::ViewportGrid(int xLines, int yLines, float xSpacing, float ySpacing, GLuint shader) : Renderable(shader, GL_LINES) {
+ViewportGrid::ViewportGrid(int xLines, int yLines, float xSpacing, float ySpacing, GLuint shader) : Geometry() {
 	SetupGrid(xLines, yLines, xSpacing, ySpacing);
 }
 

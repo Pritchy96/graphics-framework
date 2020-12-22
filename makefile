@@ -1,6 +1,6 @@
 CC := g++
-CXXSHAREDFLAGS := -Wall -fPIC -std=c++11 -MMD -MP
-CXXFLAGS := -Wall -std=c++11 -g 
+CXXSHAREDFLAGS := -Wall -fPIC -MMD -MP
+CXXFLAGS := -Wall -std=c++14 -g 
 CPPFLAGS := -Iinclude
 
 LDFLAGS = -shared

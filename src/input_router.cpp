@@ -5,38 +5,38 @@
 using namespace glm;
 using namespace std;
 
-Viewport *activeViewport;
+std::shared_ptr<Viewport> activeViewport;
 
-Viewport* InputRouter::GetActiveViewport() {
+shared_ptr<Viewport> InputRouter::GetActiveViewport() {
 	return activeViewport;
 }
 
-void InputRouter::SetActiveViewport(Viewport* active_viewport) {
+void InputRouter::SetActiveViewport(std::shared_ptr<Viewport> active_viewport) {
 	activeViewport = active_viewport;
 	glfwMakeContextCurrent(activeViewport->glfwWindow);
 }
 
-InputRouter::InputRouter(Viewport* active_viewport) {
+InputRouter::InputRouter(shared_ptr<Viewport> active_viewport) {
 	SetActiveViewport(active_viewport);
 }
 
 void InputRouter::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+	SetActiveViewport(shared_ptr<Viewport>((Viewport*) glfwGetWindowUserPointer(window)));
     activeViewport->mouseButtonCallback(window, button, action, mods);
 }
  
 void InputRouter::cursorCallback(GLFWwindow *window, double x, double y) {
-	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+	SetActiveViewport(shared_ptr<Viewport>((Viewport*) glfwGetWindowUserPointer(window)));
     activeViewport->cursorCallback(window, x, y);
 }	
 
 void InputRouter::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+	SetActiveViewport(shared_ptr<Viewport>((Viewport*) glfwGetWindowUserPointer(window)));
 	activeViewport->scrollCallback(window, xoffset, yoffset);
 }
 
 void InputRouter::windowSizeCallback(GLFWwindow* window, int width, int height) {
-	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+	SetActiveViewport(shared_ptr<Viewport>((Viewport*) glfwGetWindowUserPointer(window)));
 	activeViewport->scrollCallback(window, width, height);
 }
 	
@@ -47,7 +47,7 @@ void InputRouter::keyCallback(GLFWwindow* window, int key, int scancode, int act
 			break;
 		default: 
 		    // retrieve MyWindow object from glfw window
-        	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
+        	SetActiveViewport(shared_ptr<Viewport>((Viewport*) glfwGetWindowUserPointer(window)));
 			activeViewport->keyCallback(window, key, scancode, action, mods);
 		break;
 	}
