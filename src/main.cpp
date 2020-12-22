@@ -33,8 +33,6 @@ vector<vec3> test_data_lines = {
 	glm::vec3(00.0, 00.0, 200.0)
 };
 
-
-
 auto oldTime = chrono::steady_clock::now(), newTime = chrono::steady_clock::now();
 double deltaT;	
 
@@ -42,21 +40,20 @@ shared_ptr<vector<shared_ptr<Viewport>>> renderers;
 unique_ptr<InputRouter> inputRouter;
 unique_ptr<GeometryList> masterGeometry;
 
-shared_ptr<Viewport> CreateRenderWindow(int width, int height, char* title, glm::vec3 backgroundCol, GLFWwindow* sharedWindow = NULL) {
-	shared_ptr<Viewport> viewport = make_shared<Viewport>(glfwCreateWindow(width, height, title, NULL, sharedWindow), backgroundCol);
+void CreateRenderWindow(int width, int height, char* title, glm::vec3 backgroundCol, GLFWwindow* sharedWindow = NULL) {
+	 
+	renderers->push_back(make_shared<Viewport>(glfwCreateWindow(width, height, title, NULL, sharedWindow), backgroundCol));
 
 	//Bind the viewport class pointer to the window within, so the callbacks can pass through to the non static
 	//viewport callback handlers from the static inputRouter callback functions using the provided window.
-	glfwSetWindowUserPointer(viewport->glfwWindow, viewport.get());	
+	glfwSetWindowUserPointer(renderers->back()->glfwWindow, renderers->back().get());	
 
-	glfwSetInputMode(viewport->glfwWindow, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetKeyCallback(viewport->glfwWindow, inputRouter->keyCallback);
-	glfwSetMouseButtonCallback(viewport->glfwWindow, inputRouter->mouseButtonCallback);
-	glfwSetScrollCallback(viewport->glfwWindow, inputRouter->scrollCallback);
-	glfwSetCursorPosCallback(viewport->glfwWindow, inputRouter->cursorCallback);
-	glfwSetWindowSizeCallback(viewport->glfwWindow, inputRouter->windowSizeCallback);
-	
-	return viewport;
+	glfwSetInputMode(renderers->back()->glfwWindow, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetKeyCallback(renderers->back()->glfwWindow, inputRouter->keyCallback);
+	glfwSetMouseButtonCallback(renderers->back()->glfwWindow, inputRouter->mouseButtonCallback);
+	glfwSetScrollCallback(renderers->back()->glfwWindow, inputRouter->scrollCallback);
+	glfwSetCursorPosCallback(renderers->back()->glfwWindow, inputRouter->cursorCallback);
+	glfwSetWindowSizeCallback(renderers->back()->glfwWindow, inputRouter->windowSizeCallback);
 }
 
 void errorCallback(int error, const char* description) {
@@ -81,10 +78,12 @@ int main(int argc, const char* argv[]) {
 	inputRouter = make_unique<InputRouter>();
 	renderers = make_shared<vector<shared_ptr<Viewport>>>();    
 
-    renderers->push_back(CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.7f, 0.7f, 0.7f)));
+    CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.7f, 0.7f, 0.7f));
+	shared_ptr<Viewport> test = renderers->at(0);
+
 	inputRouter->SetActiveViewport(renderers->at(0));
 
-	renderers->push_back(CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.4f, 0.4f, 0.4f), renderers->at(0)->glfwWindow));
+	CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.4f, 0.4f, 0.4f), renderers->at(0)->glfwWindow);
 
 	GLuint shader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
 	
@@ -114,6 +113,7 @@ int main(int argc, const char* argv[]) {
 		}
     }
 
+	//glfwTerminate();
     return 0;
 }
 

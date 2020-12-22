@@ -41,8 +41,6 @@ void Viewport::setFPSCounter(GLFWwindow* glfwWindow, double deltaTime) {
 Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
     cout << "Initialised Viewport" << endl;
 	glfwWindow = glfw_window;
-	//masterGeometry = master_geometry;
-	//TODO: add existing geo to geoRenderablePairs.
 
 	glfwGetWindowSize(glfw_window, &width, &height);
 
@@ -130,8 +128,6 @@ void Viewport::update(float deltaTime) {
 	
 	// while(geoItr != masterGeometry->end()) {
 	// 	geometry = (*geoItr);
-	
-
 	// } 
 	
 	// renderable = privateRenderables.begin() ;
@@ -150,8 +146,9 @@ void Viewport::update(float deltaTime) {
 }
 
 Viewport::~Viewport() {
-	glfwDestroyWindow(glfwWindow);
-	glfwTerminate();
+	//glfwDestroyWindow(glfwWindow);
+	//glfwTerminate();
+	glfwSetWindowUserPointer(glfwWindow, NULL);
 	exit(EXIT_SUCCESS);
 }
 

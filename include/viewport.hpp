@@ -31,10 +31,14 @@
     using namespace glm;
     using namespace std;
 
-    class Viewport {
+    class Viewport: public enable_shared_from_this<Viewport> {
         public:
             Viewport(GLFWwindow *window, glm::vec3 background_colour);
             ~Viewport();
+
+            shared_ptr<Viewport> getSharedPtr() {
+                return shared_from_this();
+            }
 
             void addPrivateGeometry(shared_ptr<Geometry> renderable);
             void update(float deltaT);
