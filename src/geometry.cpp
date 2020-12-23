@@ -6,17 +6,18 @@ using namespace std;
 Geometry::Geometry(vector<glm::vec3> vert_data) {
 	vertexes = vert_data;
 	colours = vert_data;
+	GenerateFlatBuffers();
 }
 
 Geometry::Geometry(vector<glm::vec3> vert_data, vector<glm::vec3> colour_data) {
 	vertexes = vert_data;
 	colours = colour_data;
+	GenerateFlatBuffers();
 }
 
 void Geometry::Update(float deltaT) {
 	if (buffersInvalid) {
 		GenerateFlatBuffers();
-		buffersInvalid = false;
 	}
 }
 
@@ -33,5 +34,6 @@ int Geometry::GenerateFlatBuffers() {
 		flatCols.push_back(colour->z);
 	}
 
+	buffersInvalid = false;
 	return vertexes.size();
 }

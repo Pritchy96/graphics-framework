@@ -6,12 +6,6 @@ using namespace std;
 GLuint Renderable::getVAO() {
 	if (!validVAO) {
 
-		//Convert weak ptr to shared ptr to access data.
-		shared_ptr<Geometry> geometry = geoPtr.lock();
-		//cout << "Creating VAO for Renderable" << endl;
-
-		vertBufferSize = geometry->GenerateFlatBuffers();
-
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 		glEnableVertexAttribArray(0);
@@ -36,11 +30,8 @@ GLuint Renderable::getVAO() {
 }
 
 void Renderable::Draw(float deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
-		//Check geo first
-		if (geoPtr.expired()) {
-			isDead = true;
+		if (!geometry->visible)
 			return;
-		}
 
 		glUseProgram(shader);
 
@@ -52,11 +43,11 @@ void Renderable::Draw(float deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMa
 		glUniformMatrix4fv(shaderID, 1, GL_FALSE, &MVP[0][0]);
 	
 		glBindVertexArray(getVAO());
-		glDrawArrays(renderType, 0, vertBufferSize);
+		glDrawArrays(renderType, 0, geometry->vertexes.size());
 }
 
-Renderable::Renderable(GLuint Shader, weak_ptr<Geometry> geo_ptr, GLuint renderPrimative) {
+Renderable::Renderable(GLuint Shader, shared_ptr<Geometry> geo_ptr, GLuint renderPrimative) {
 	shader = Shader;
-	geoPtr = geo_ptr;
+	geometry = geo_ptr;
 	renderType = renderPrimative;
 }

@@ -40,8 +40,7 @@
                 return shared_from_this();
             }
 
-            void addPrivateGeometry(shared_ptr<Geometry> renderable);
-            void update(float deltaT);
+            void update(float deltaT);  
             void setupTransformShader(GLuint transformShader);   
             
             void windowSizeCallback(GLFWwindow* window, int width, int height);
@@ -52,7 +51,7 @@
             void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
             GLFWwindow *glfwWindow;
-            vector<pair<weak_ptr<Geometry>, shared_ptr<Renderable>>> geoRenderablePairs;
+            vector<pair<shared_ptr<Geometry>, shared_ptr<Renderable>>> geoRenderablePairs;
 
             GLuint tShader;      
             GLuint shaderID;    
@@ -66,8 +65,6 @@
             vector<InputHandler*> inputHandlers;
             Arcball* arcballCamera;
             Camera* camera;
-
-            shared_ptr<Geometry> renderAxis, grid;
     };
 
 #endif

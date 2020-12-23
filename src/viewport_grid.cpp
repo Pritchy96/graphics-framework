@@ -29,4 +29,6 @@ void ViewportGrid::SetupGrid(int xLines, int yLines, float xSpacing, float ySpac
 		vertexes.push_back(glm::vec3(xOrigin, yOrigin + (y*ySpacing), center.z));
 		vertexes.push_back(glm::vec3(xOrigin + width, yOrigin + (y*ySpacing), center.z));
 	}
+
+	GenerateFlatBuffers();
 }

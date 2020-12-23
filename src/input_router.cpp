@@ -49,6 +49,7 @@ void InputRouter::windowSizeCallback(GLFWwindow* window, int width, int height) 
 void InputRouter::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	switch (key) {
 		case(GLFW_KEY_ESCAPE) :
+			//TODO: move to viewport, escape kills currently focused viewport, another key adds one.
 			exit(0);
 			break;
 		default: 

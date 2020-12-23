@@ -28,7 +28,8 @@
             vector<vec3> vertexes, colours;
             vector<float> flatVerts, flatCols;
             //If true, the flatvert buffers no longer match the vert buffers
-            bool buffersInvalid = false;
+            bool buffersInvalid = true;
+            bool visible = true, isDead = false;
     };
 
 #endif

@@ -12,7 +12,6 @@
 
 #include "viewport.hpp"
 #include "input_router.hpp"
-#include "shader.hpp"
 #include "geometry.hpp"
 #include "geometry_list.hpp"
 
@@ -76,21 +75,16 @@ int main(int argc, const char* argv[]) {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	inputRouter = make_unique<InputRouter>();
-	renderers = make_shared<vector<shared_ptr<Viewport>>>();    
+	renderers = make_shared<vector<shared_ptr<Viewport>>>();
+	masterGeometry = make_unique<GeometryList>(renderers);
 
     CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.7f, 0.7f, 0.7f));
-	shared_ptr<Viewport> test = renderers->at(0);
-
 	inputRouter->SetActiveViewport(renderers->at(0));
-
 	CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.4f, 0.4f, 0.4f), renderers->at(0)->glfwWindow);
-
-	GLuint shader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
 	
-	masterGeometry = make_unique<GeometryList>(renderers);
 	masterGeometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
-    //renderers.at(0)->addRenderable(new Renderable(shader, test_data_lines, test_data_lines, GL_TRIANGLES));
-	//renderers.at(1)->camera->position = glm::vec3(0, 0, 10);
+
+	renderers->at(1)->camera->position = glm::vec3(0, 0, 10);
 
 	glfwSetErrorCallback(errorCallback);
 
@@ -99,17 +93,19 @@ int main(int argc, const char* argv[]) {
     	newTime = chrono::steady_clock::now();
 		deltaT = chrono::duration_cast<chrono::milliseconds>(newTime - oldTime).count();
 
-		for (shared_ptr<Viewport> v : (*renderers)) {
+		for (auto v : (*renderers)) {
 			inputRouter->SetActiveViewport(v);
-
         	v->update(deltaT);
 
 			//Update other events like input handling 
 	    	glfwPollEvents();
 		}
 
-		for (shared_ptr<Geometry> g : (*masterGeometry)) {
-			g->Update(deltaT);
+		auto geoPtr = masterGeometry->begin();
+
+		while (geoPtr != masterGeometry->end()) {
+			(*geoPtr)->Update(deltaT);
+			geoPtr++;
 		}
     }
 
