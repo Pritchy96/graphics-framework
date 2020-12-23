@@ -5,50 +5,57 @@
 using namespace glm;
 using namespace std;
 
-Viewport *activeViewport;
+std::weak_ptr<Viewport> activeViewport;
 
-Viewport* InputRouter::GetActiveViewport() {
+weak_ptr<Viewport> InputRouter::GetActiveViewport() {
 	return activeViewport;
 }
 
-void InputRouter::SetActiveViewport(Viewport* active_viewport) {
-	activeViewport = active_viewport;
-	glfwMakeContextCurrent(activeViewport->glfwWindow);
+//Retuns false if window does not have a valid associated viewport.
+//TODO: do we need to have a reference to the currently active viewport?
+void InputRouter::SetActiveViewport(shared_ptr<Viewport> viewport) {
+	activeViewport = viewport;
+	glfwMakeContextCurrent(viewport->glfwWindow);
 }
 
-InputRouter::InputRouter(Viewport* active_viewport) {
+InputRouter::InputRouter(shared_ptr<Viewport> active_viewport) {
 	SetActiveViewport(active_viewport);
 }
 
 void InputRouter::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
-    activeViewport->mouseButtonCallback(window, button, action, mods);
+	Viewport* viewport = (Viewport*)glfwGetWindowUserPointer(window);
+	SetActiveViewport(viewport->getSharedPtr());
+    viewport->mouseButtonCallback(window, button, action, mods);
 }
  
 void InputRouter::cursorCallback(GLFWwindow *window, double x, double y) {
-	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
-    activeViewport->cursorCallback(window, x, y);
+	Viewport* viewport = (Viewport*)glfwGetWindowUserPointer(window);
+	SetActiveViewport(viewport->getSharedPtr());
+    viewport->cursorCallback(window, x, y);
 }	
 
 void InputRouter::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
-	activeViewport->scrollCallback(window, xoffset, yoffset);
+	Viewport* viewport = (Viewport*)glfwGetWindowUserPointer(window);
+	SetActiveViewport(viewport->getSharedPtr());
+	viewport->scrollCallback(window, xoffset, yoffset);
 }
 
 void InputRouter::windowSizeCallback(GLFWwindow* window, int width, int height) {
-	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
-	activeViewport->scrollCallback(window, width, height);
+	Viewport* viewport = (Viewport*)glfwGetWindowUserPointer(window);
+	SetActiveViewport(viewport->getSharedPtr());
+	viewport->windowSizeCallback(window, width, height);
 }
 	
 void InputRouter::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	switch (key) {
 		case(GLFW_KEY_ESCAPE) :
+			//TODO: move to viewport, escape kills currently focused viewport, another key adds one.
 			exit(0);
 			break;
 		default: 
-		    // retrieve MyWindow object from glfw window
-        	SetActiveViewport((Viewport*)glfwGetWindowUserPointer(window));
-			activeViewport->keyCallback(window, key, scancode, action, mods);
+		    Viewport* viewport = (Viewport*)glfwGetWindowUserPointer(window);
+			SetActiveViewport(viewport->getSharedPtr());
+			viewport->keyCallback(window, key, scancode, action, mods);
 		break;
 	}
 }

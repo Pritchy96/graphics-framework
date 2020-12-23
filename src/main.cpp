@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <memory>
 
 #include <boost/filesystem.hpp>
 
@@ -11,7 +12,8 @@
 
 #include "viewport.hpp"
 #include "input_router.hpp"
-#include "shader.hpp"
+#include "geometry.hpp"
+#include "geometry_list.hpp"
 
 using namespace std;
 using namespace boost;
@@ -28,30 +30,29 @@ vector<vec3> test_data_lines = {
 	glm::vec3(00.0, 00.0, 00.0),
 	glm::vec3(00.0, 200.0, 00.0),
 	glm::vec3(00.0, 00.0, 200.0)
-
 };
 
 auto oldTime = chrono::steady_clock::now(), newTime = chrono::steady_clock::now();
 double deltaT;	
 
-vector<Viewport*> renderers;
-InputRouter *inputRouter;
+shared_ptr<vector<shared_ptr<Viewport>>> renderers;
+unique_ptr<InputRouter> inputRouter;
+unique_ptr<GeometryList> masterGeometry;
 
-Viewport* CreateWindow(int width, int height, char* title, glm::vec3 backgroundCol, GLFWwindow* sharedWindow = NULL) {
-	Viewport* viewport = new Viewport(glfwCreateWindow(width, height, title, NULL, sharedWindow), backgroundCol);
+void CreateRenderWindow(int width, int height, char* title, glm::vec3 backgroundCol, GLFWwindow* sharedWindow = NULL) {
+	 
+	renderers->push_back(make_shared<Viewport>(glfwCreateWindow(width, height, title, NULL, sharedWindow), backgroundCol));
 
 	//Bind the viewport class pointer to the window within, so the callbacks can pass through to the non static
 	//viewport callback handlers from the static inputRouter callback functions using the provided window.
-	glfwSetWindowUserPointer(viewport->glfwWindow, viewport);	
+	glfwSetWindowUserPointer(renderers->back()->glfwWindow, renderers->back().get());	
 
-	glfwSetInputMode(viewport->glfwWindow, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetKeyCallback(viewport->glfwWindow, inputRouter->keyCallback);
-	glfwSetMouseButtonCallback(viewport->glfwWindow, inputRouter->mouseButtonCallback);
-	glfwSetScrollCallback(viewport->glfwWindow, inputRouter->scrollCallback);
-	glfwSetCursorPosCallback(viewport->glfwWindow, inputRouter->cursorCallback);
-	glfwSetWindowSizeCallback(viewport->glfwWindow, inputRouter->windowSizeCallback);
-	
-	return viewport;
+	glfwSetInputMode(renderers->back()->glfwWindow, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetKeyCallback(renderers->back()->glfwWindow, inputRouter->keyCallback);
+	glfwSetMouseButtonCallback(renderers->back()->glfwWindow, inputRouter->mouseButtonCallback);
+	glfwSetScrollCallback(renderers->back()->glfwWindow, inputRouter->scrollCallback);
+	glfwSetCursorPosCallback(renderers->back()->glfwWindow, inputRouter->cursorCallback);
+	glfwSetWindowSizeCallback(renderers->back()->glfwWindow, inputRouter->windowSizeCallback);
 }
 
 void errorCallback(int error, const char* description) {
@@ -73,20 +74,17 @@ int main(int argc, const char* argv[]) {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); //For MacOS compat, apparently
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	inputRouter = new InputRouter();
+	inputRouter = make_unique<InputRouter>();
+	renderers = make_shared<vector<shared_ptr<Viewport>>>();
+	masterGeometry = make_unique<GeometryList>(renderers);
 
-    renderers.push_back(CreateWindow(1024, 768, "Render Window", glm::vec3(0.7f, 0.7f, 0.7f)));
-	inputRouter->SetActiveViewport(renderers.at(0));
+    CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.7f, 0.7f, 0.7f));
+	inputRouter->SetActiveViewport(renderers->at(0));
+	CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.4f, 0.4f, 0.4f), renderers->at(0)->glfwWindow);
+	
+	masterGeometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
 
-	renderers.push_back(CreateWindow(1024, 768, "Render Window", glm::vec3(0.4f, 0.4f, 0.4f)));
-
-	GLuint shader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
-
-	//TODO: Renderables need to be pulled out to a master list and passed by reference to viewports.
-    renderers.at(0)->addRenderable(new Renderable(shader, test_data_lines, test_data_lines, GL_TRIANGLES));
-	renderers.at(1)->addRenderable(new Renderable(shader, test_data_lines, test_data_lines, GL_TRIANGLES));
-
-	renderers.at(1)->camera->position = glm::vec3(0, 0, 10);
+	renderers->at(1)->camera->position = glm::vec3(0, 0, 10);
 
 	glfwSetErrorCallback(errorCallback);
 
@@ -95,14 +93,23 @@ int main(int argc, const char* argv[]) {
     	newTime = chrono::steady_clock::now();
 		deltaT = chrono::duration_cast<chrono::milliseconds>(newTime - oldTime).count();
 
-		for (Viewport* v : renderers) {
+		for (auto v : (*renderers)) {
 			inputRouter->SetActiveViewport(v);
         	v->update(deltaT);
+
 			//Update other events like input handling 
 	    	glfwPollEvents();
 		}
+
+		auto geoPtr = masterGeometry->begin();
+
+		while (geoPtr != masterGeometry->end()) {
+			(*geoPtr)->Update(deltaT);
+			geoPtr++;
+		}
     }
 
+	//glfwTerminate();
     return 0;
 }
 

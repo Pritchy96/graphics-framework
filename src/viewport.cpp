@@ -76,15 +76,12 @@ Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
 	}
 	
 	basicShader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
-    renderAxis = new Renderable(basicShader, axis_lines, axis_colours, GL_LINES);
-	grid = new ViewportGrid(80, 80, 40, 40, basicShader);
 
-	addRenderable(grid);
-	addRenderable(renderAxis);
-}
-
-void Viewport::addRenderable(Renderable* renderable) {
-	renderables.push_back(renderable);
+    shared_ptr<Geometry> renderAxis = make_shared<Geometry>(axis_lines, axis_colours);
+	shared_ptr<ViewportGrid> grid = make_shared<ViewportGrid>(80, 80, 40, 40, basicShader);
+	//TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
+	geoRenderablePairs.push_back(make_pair(grid, make_unique<Renderable>(basicShader, grid, GL_LINES)));
+	geoRenderablePairs.push_back(make_pair(renderAxis, make_unique<Renderable>(basicShader, renderAxis, GL_LINES)));
 }
 
 void Viewport::setupTransformShader(GLuint transformShader) {
@@ -95,24 +92,39 @@ void Viewport::update(float deltaTime) {
 	setFPSCounter(glfwWindow, deltaTime);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	vector<Renderable*>::iterator renderable = renderables.begin();
+	auto geoRenderable = geoRenderablePairs.begin();
 
-	while(renderable != renderables.end()) {
-		if((*renderable)->isDead) {
-			delete(*renderable);
+	while(geoRenderable != geoRenderablePairs.end()) {
+		//Geo is dead, nuke the map link
+		if (geoRenderable->first->isDead) {
 			//iterator.erase gives the next item in the list.
-			renderable = renderables.erase(renderable);
-		} else {
-			(*renderable)->Draw(deltaTime, camera->getProjectionMatrix(), camera->getViewMatrix());
-			++renderable;
+			geoRenderable = geoRenderablePairs.erase(geoRenderable);
+			continue;
 		}
+
+		if (geoRenderable->second == NULL) {
+			//Renderable for geo doesn't exist, make one.
+			//TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
+			geoRenderable->second = make_unique<Renderable>(basicShader, geoRenderable->first, GL_TRIANGLES);
+		}
+
+		shared_ptr<Geometry> geometry = geoRenderable->first;
+		shared_ptr<Renderable> renderable = geoRenderable->second;
+
+		if (geometry->buffersInvalid) {
+			renderable->validVAO = false;
+		}
+
+		renderable->Draw(deltaTime, camera->getProjectionMatrix(), camera->getViewMatrix());
+		++geoRenderable;
 	}
+
 	glfwSwapBuffers(glfwWindow);
 }
 
 Viewport::~Viewport() {
 	glfwDestroyWindow(glfwWindow);
-	glfwTerminate();
+	glfwSetWindowUserPointer(glfwWindow, NULL);
 	exit(EXIT_SUCCESS);
 }
 
@@ -160,14 +172,21 @@ void Viewport::keyCallback(GLFWwindow* window, int key, int scancode, int action
 			}
 			break;
 
+		case(GLFW_KEY_G) :
+			if(action == GLFW_PRESS) {
+				//TODO: render special geo like the grid and axis seperately to avoid this janky by index referencing.
+				geoRenderablePairs.at(0).first->visible = !geoRenderablePairs.at(0).first->visible;
+			}
+			break;
+
 		default:
 			break;
 	} 
 }
 
 void Viewport::windowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	height = height;
-	width = width;
+	this->height = height;
+	this->width = width;
 	glViewport(0, 0, width, height);
 
 	for (InputHandler* i : inputHandlers) {

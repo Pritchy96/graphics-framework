@@ -10,7 +10,6 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
-#include "viewport.hpp"
 #include "camera.hpp"
 
 class InputHandler {

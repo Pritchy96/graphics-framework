@@ -1,10 +1,12 @@
-#ifndef RENDERENVIRONMENT_HPP
-#define RENDERENVIRONMENT_HPP
+#ifndef VIEWPORT_HPP
+#define VIEWPORT_HPP
 
     #include <iostream>
     #include <stdio.h>
     #include <stdlib.h>
     #include <vector>
+    #include <memory>
+    #include <map>
 
     #define GLM_ENABLE_EXPERIMENTAL
     #include <GL/glew.h>
@@ -19,6 +21,7 @@
     #include "viewport.hpp"	
 
     #include "shader.hpp"
+    #include "geometry.hpp"
     #include "renderable.hpp"
     #include "viewport_grid.hpp"
     #include "arcball.hpp"
@@ -28,13 +31,16 @@
     using namespace glm;
     using namespace std;
 
-    class Viewport {
+    class Viewport: public enable_shared_from_this<Viewport> {
         public:
-            Viewport(GLFWwindow *window, glm::vec3 backgroundColour);
+            Viewport(GLFWwindow *window, glm::vec3 background_colour);
             ~Viewport();
 
-            void addRenderable(Renderable* renderable);
-            void update(float deltaT);
+            shared_ptr<Viewport> getSharedPtr() {
+                return shared_from_this();
+            }
+
+            void update(float deltaT);  
             void setupTransformShader(GLuint transformShader);   
             
             void windowSizeCallback(GLFWwindow* window, int width, int height);
@@ -45,11 +51,10 @@
             void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
             GLFWwindow *glfwWindow;
-            vector<Renderable*> renderables;
+            vector<pair<shared_ptr<Geometry>, shared_ptr<Renderable>>> geoRenderablePairs;
+
             GLuint tShader;      
-
-
-            GLuint shaderID;
+            GLuint shaderID;    
             GLuint basicShader;
 
             int width = -1, height = -1;
@@ -60,9 +65,6 @@
             vector<InputHandler*> inputHandlers;
             Arcball* arcballCamera;
             Camera* camera;
-
-            Renderable* renderAxis;
-            ViewportGrid* grid;
     };
 
 #endif

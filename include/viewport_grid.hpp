@@ -4,7 +4,9 @@
 
 #include "renderable.hpp"
 
-    class ViewportGrid : public Renderable {
+#include "geometry.hpp"
+
+    class ViewportGrid : public Geometry {
         public:
             ViewportGrid(int xLines, int yLines, float xSpacing, float ySpacing, GLuint shader);
 

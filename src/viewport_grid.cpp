@@ -3,7 +3,7 @@
 using namespace glm;
 using namespace std;
 
-ViewportGrid::ViewportGrid(int xLines, int yLines, float xSpacing, float ySpacing, GLuint shader) : Renderable(shader, GL_LINES) {
+ViewportGrid::ViewportGrid(int xLines, int yLines, float xSpacing, float ySpacing, GLuint shader) : Geometry() {
 	SetupGrid(xLines, yLines, xSpacing, ySpacing);
 }
 
@@ -29,4 +29,6 @@ void ViewportGrid::SetupGrid(int xLines, int yLines, float xSpacing, float ySpac
 		vertexes.push_back(glm::vec3(xOrigin, yOrigin + (y*ySpacing), center.z));
 		vertexes.push_back(glm::vec3(xOrigin + width, yOrigin + (y*ySpacing), center.z));
 	}
+
+	GenerateFlatBuffers();
 }
