@@ -33,7 +33,7 @@ public:
     void mouseButtonCallback(GLFWwindow * window, int button, int action, int mods) override;
     void cursorCallback(GLFWwindow *window, double x, double y) override;
 
-    glm::mat4 createViewRotationMatrix();
+    glm::mat4 createViewRotationMatrix() override;
 };
 
 #endif 

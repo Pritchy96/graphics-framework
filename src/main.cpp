@@ -56,7 +56,7 @@ void CreateRenderWindow(int width, int height, char* title, glm::vec3 background
 }
 
 void errorCallback(int error, const char* description) {
-	fprintf(stderr, description);
+	fprintf(stderr, "%s", description);
 }
 
 //TODO split into init() and mainLoop() functions.
@@ -78,9 +78,9 @@ int main(int argc, const char* argv[]) {
 	renderers = make_shared<vector<shared_ptr<Viewport>>>();
 	masterGeometry = make_unique<GeometryList>(renderers);
 
-    CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.7f, 0.7f, 0.7f));
+    CreateRenderWindow(1024, 768, (char*)"Render Window", glm::vec3(0.7f, 0.7f, 0.7f));
 	inputRouter->SetActiveViewport(renderers->at(0));
-	CreateRenderWindow(1024, 768, "Render Window", glm::vec3(0.4f, 0.4f, 0.4f), renderers->at(0)->glfwWindow);
+	CreateRenderWindow(1024, 768, (char*)"Render Window", glm::vec3(0.4f, 0.4f, 0.4f), renderers->at(0)->glfwWindow);
 	
 	masterGeometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
 

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(graphics-framework VERSION 0.0.1)
 
 find_package(glfw3 3.3 REQUIRED)
+set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
@@ -15,7 +16,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
 add_executable(test ${SOURCES})
 
 target_link_libraries(test glfw)
-#TODO: GLVND or legacy?
+
 target_link_libraries(test OpenGL::GL)
 target_link_libraries(test GLEW::GLEW)
 
