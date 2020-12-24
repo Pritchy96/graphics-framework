@@ -1,4 +1,4 @@
-#include "viewport.hpp"	
+#include "graphics-framework/viewport.hpp"	
 
 using namespace std;
 using namespace glm;
@@ -53,7 +53,7 @@ Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
 		glfwTerminate();
 	}
 
-	//TODO: Move everything dependent ont his (gl calls, shader loads etc) to an init() function so this context setting can be done 
+	//TODO: Move everything dependent on this (gl calls, shader loads etc) to an init() function so this context setting can be done 
 	//in main.cpp
 	glfwMakeContextCurrent(glfwWindow);
 
@@ -75,7 +75,8 @@ Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
 		glfwTerminate();
 	}
 	
-	basicShader = Shader::LoadShaders((char*)"./bin/shaders/basic.vertshader", (char*)"./bin/shaders/basic.fragshader");
+	//TODO: file paths are currently relative to excution path, not main location.
+	basicShader = Shader::LoadShaders((char*)"./shaders/basic.vertshader", (char*)"./shaders/basic.fragshader");
 
     shared_ptr<Geometry> renderAxis = make_shared<Geometry>(axis_lines, axis_colours);
 	shared_ptr<ViewportGrid> grid = make_shared<ViewportGrid>(80, 80, 40, 40, basicShader);

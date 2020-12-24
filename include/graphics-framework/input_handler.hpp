@@ -29,7 +29,7 @@ public:
     void windowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
         this->windowHeight = height;
         this->windowWidth  = width; 
-    }
+    }       
 
     virtual glm::mat4 createViewRotationMatrix() = 0;
 };

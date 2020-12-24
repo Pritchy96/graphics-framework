@@ -1,6 +1,6 @@
 //Figure out where the users focus is, then send over input to the relevant handler.
 //Also handle generic requests i.e key shortcuts which should happen regardless of focus.
-#include "input_router.hpp"
+#include "graphics-framework/input_router.hpp"
 
 using namespace glm;
 using namespace std;

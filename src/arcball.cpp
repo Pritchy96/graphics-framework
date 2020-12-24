@@ -1,4 +1,4 @@
-#include "arcball.hpp"
+#include "graphics-framework/arcball.hpp"
 
 Arcball::Arcball(Camera* camera, int window_width, int window_height, GLfloat rotate_speed) 
     : InputHandler(camera, window_width, window_height), rotateSpeed(rotate_speed) {}

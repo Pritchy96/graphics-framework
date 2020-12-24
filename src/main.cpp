@@ -10,10 +10,10 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
-#include "viewport.hpp"
-#include "input_router.hpp"
-#include "geometry.hpp"
-#include "geometry_list.hpp"
+#include "graphics-framework/viewport.hpp"
+#include "graphics-framework/input_router.hpp"
+#include "graphics-framework/geometry.hpp"
+#include "graphics-framework/geometry_list.hpp"
 
 using namespace std;
 using namespace boost;

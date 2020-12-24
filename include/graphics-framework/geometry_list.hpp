@@ -42,9 +42,6 @@
             shared_ptr<vector<shared_ptr<Viewport>>> viewports;
     };
 
-
-    
-
 #endif
 
 

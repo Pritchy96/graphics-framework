@@ -18,8 +18,6 @@
     #include <glm/gtx/transform.hpp>
     #include <glm/gtx/string_cast.hpp>
 
-    #include "viewport.hpp"	
-
     #include "shader.hpp"
     #include "geometry.hpp"
     #include "renderable.hpp"
