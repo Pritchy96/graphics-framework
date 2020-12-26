@@ -4,7 +4,7 @@
 #include <iterator>
 #include <vector>
 #include <memory>
-
+    
 #include "viewport.hpp"
 #include "geometry.hpp"
 
@@ -12,26 +12,26 @@
 
     class GeometryList {    
         public:
-            GeometryList(shared_ptr<vector<shared_ptr<Viewport>>> viewport_list) : viewports(viewport_list) {};
-            ~GeometryList() {}
+            explicit GeometryList(shared_ptr<vector<shared_ptr<Viewport>>> viewport_list) : viewports_(viewport_list) {};
+            ~GeometryList() = default;
             vector<shared_ptr<Geometry>> geometry_list; 
 
             void push_back(shared_ptr<Geometry> geometry) {
                 geometry_list.push_back(geometry);
 
-                for (shared_ptr<Viewport> v : (*viewports)) {
-                    v->geoRenderablePairs.push_back(make_pair(geometry, nullptr));
+                for (shared_ptr<Viewport> v : (*viewports_)) {
+                    v->geo_renderable_pairs.emplace_back(geometry, nullptr);
                 }
             }
             
             void erase(vector<shared_ptr<Geometry>>::iterator position) {
-                (*position)->isDead = true;
+                (*position)->is_dead = true;
                 geometry_list.erase(position);
             }
 
             void erase(int index) {
-                vector<shared_ptr<Geometry>>::iterator iter = geometry_list.begin() + index;
-                (*iter)->isDead = true;
+                auto iter = geometry_list.begin() + index;
+                (*iter)->is_dead = true;
                 geometry_list.erase(iter);
             }
 
@@ -39,7 +39,7 @@
             vector<shared_ptr<Geometry>>::iterator end() { return geometry_list.end(); }
 
         private:    
-            shared_ptr<vector<shared_ptr<Viewport>>> viewports;
+            shared_ptr<vector<shared_ptr<Viewport>>> viewports_;
     };
 
 #endif

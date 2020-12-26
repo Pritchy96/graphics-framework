@@ -34,34 +34,35 @@
             Viewport(GLFWwindow *window, glm::vec3 background_colour);
             ~Viewport();
 
-            shared_ptr<Viewport> getSharedPtr() {
+            shared_ptr<Viewport> GetSharedPtr() {
                 return shared_from_this();
             }
 
-            void update(float deltaT);  
-            void setupTransformShader(GLuint transformShader);   
+            void Update(float deltaT);  
+            void SetupTransformShader(GLuint transformShader);   
             
-            void windowSizeCallback(GLFWwindow* window, int width, int height);
-            void setFPSCounter(GLFWwindow* window, double deltaT);
-            void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-            void mouseButtonCallback( GLFWwindow* window, int button, int action, int mods );
-            void cursorCallback( GLFWwindow* window, double x, double y );
-            void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+            void WindowSizeCallback(GLFWwindow* window, int width, int height);
+            void SetFpsCounter(GLFWwindow* window, double deltaT);
+            void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+            void MouseButtonCallback( GLFWwindow* window, int button, int action, int mods );
+            void CursorCallback( GLFWwindow* window, double x, double y );
+            void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
-            GLFWwindow *glfwWindow;
-            vector<pair<shared_ptr<Geometry>, shared_ptr<Renderable>>> geoRenderablePairs;
+            //TODO: most of these can be made private.
+            GLFWwindow *glfw_window;
+            vector<pair<shared_ptr<Geometry>, shared_ptr<Renderable>>> geo_renderable_pairs;
 
-            GLuint tShader;      
-            GLuint shaderID;    
-            GLuint basicShader;
+            GLuint t_shader;      
+            GLuint shader_id;    
+            GLuint basic_shader;
 
             int width = -1, height = -1;
 
-            double timeElapsed = 0;
-            int framesElapsed = 0;
+            double time_elapsed = 0;
+            int frames_elapsed = 0;
 
-            vector<InputHandler*> inputHandlers;
-            Arcball* arcballCamera;
+            vector<InputHandler*> input_handlers;
+            Arcball* arcball_camera;
             Camera* camera;
     };
 

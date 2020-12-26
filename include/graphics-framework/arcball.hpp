@@ -15,25 +15,22 @@
 
 class Arcball : public InputHandler {
 private:
-    int leftMouseButtonDown = 0;
-    GLfloat rotateSpeed;
-    GLfloat angle = 0;
-    glm::vec3 prevPos = glm::vec3(0.0f);
-    glm::vec3 currPos = glm::vec3(0.0f);
-    glm::vec3 camAxis = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::mat4 rotationMatrix = glm::mat4(1.0);
-    
-    bool xAxis;
-    bool yAxis;
-    
+    int left_mouse_button_down_ = 0;
+    GLfloat rotate_speed_;
+    GLfloat angle_ = 0;
+    glm::vec3 prev_pos_ = glm::vec3(0.0f);
+    glm::vec3 curr_pos_  = glm::vec3(0.0f);
+    glm::vec3 cam_axis_ = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::mat4 rotation_matrix_ = glm::mat4(1.0);
+ 
 public:
     Arcball(Camera* camera, int window_width, int window_height, GLfloat rotate_speed = 1.0f);
-    glm::vec3 toScreenCoord( double x, double y );
+    glm::vec3 ToScreenCoord( double x, double y );
     
-    void mouseButtonCallback(GLFWwindow * window, int button, int action, int mods) override;
-    void cursorCallback(GLFWwindow *window, double x, double y) override;
+    void MouseButtonCallback(GLFWwindow * window, int button, int action, int mods) override;
+    void CursorCallback(GLFWwindow *window, double x, double y) override;
 
-    glm::mat4 createViewRotationMatrix() override;
+    glm::mat4 CreateViewRotationMatrix() override;
 };
 
-#endif 
+#endif

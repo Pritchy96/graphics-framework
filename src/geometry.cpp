@@ -16,24 +16,24 @@ Geometry::Geometry(vector<glm::vec3> vert_data, vector<glm::vec3> colour_data) {
 }
 
 void Geometry::Update(float deltaT) {
-	if (buffersInvalid) {
+	if (buffers_invalid) {
 		GenerateFlatBuffers();
 	}
 }
 
 int Geometry::GenerateFlatBuffers() {
 	for (vector<glm::vec3>::const_iterator point = vertexes.begin(); point!=vertexes.end(); ++point) {
-		flatVerts.push_back(point->x);
-		flatVerts.push_back(point->y);
-		flatVerts.push_back(point->z);
+		flat_verts.push_back(point->x);
+		flat_verts.push_back(point->y);
+		flat_verts.push_back(point->z);
 	}
 
 	for (vector<glm::vec3>::const_iterator colour = colours.begin(); colour!=colours.end(); ++colour) {
-		flatCols.push_back(colour->x);
-		flatCols.push_back(colour->y);
-		flatCols.push_back(colour->z);
+		flat_cols.push_back(colour->x);
+		flat_cols.push_back(colour->y);
+		flat_cols.push_back(colour->z);
 	}
 
-	buffersInvalid = false;
+	buffers_invalid = false;
 	return vertexes.size();
 }

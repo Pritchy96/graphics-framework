@@ -21,41 +21,41 @@ vector<vec3> axis_colours = {
 	vec3(0.0f, 0.0f, 1.0f)
 };
 
-void Viewport::setFPSCounter(GLFWwindow* glfwWindow, double deltaTime) {
-	timeElapsed += deltaTime;
-	framesElapsed++;
+void Viewport::SetFpsCounter(GLFWwindow* glfw_window, double deltaTime) {
+	time_elapsed += deltaTime;
+	frames_elapsed++;
 
 	//If it's more than a quarter of a second, update fps.
-	if (timeElapsed > 250) {
-		double fps = (double)(framesElapsed / timeElapsed) * 1000;
+	if (time_elapsed > 250) {
+		double fps = (double)(frames_elapsed / time_elapsed) * 1000;
 		char tmp[128];
 		//Write formatted data to tmp string.
 		snprintf(tmp, sizeof(tmp)/sizeof(char), "Render Window @ %.2f FPS", fps);
-		//Set glfwWindow title to string.
-		glfwSetWindowTitle(glfwWindow, tmp);
-		framesElapsed = 0;
-		timeElapsed = 0;
+		//Set glfw_window title to string.
+		glfwSetWindowTitle(glfw_window, tmp);
+		frames_elapsed = 0;
+		time_elapsed = 0;
 	}
 }
 
-Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
+Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour) {
     cout << "Initialised Viewport" << endl;
-	glfwWindow = glfw_window;
+	glfw_window = window;
 
 	glfwGetWindowSize(glfw_window, &width, &height);
 
-	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f), width, height);
-	arcballCamera = new Arcball(camera, width, height, .015f);
-	inputHandlers.push_back(arcballCamera);
+	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
+	arcball_camera = new Arcball(camera, width, height, .015f);
+	input_handlers.push_back(arcball_camera);
 
-	if( !glfwWindow ) {
+	if( !glfw_window ) {
 		fprintf(stderr, "Failed to open GLFW window.\n" );
 		glfwTerminate();
 	}
 
 	//TODO: Move everything dependent on this (gl calls, shader loads etc) to an init() function so this context setting can be done 
 	//in main.cpp
-	glfwMakeContextCurrent(glfwWindow);
+	glfwMakeContextCurrent(glfw_window);
 
 	glClearColor(background_colour.r, background_colour.g, background_colour.b, 0.01f);
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
@@ -63,7 +63,6 @@ Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_PROGRAM_POINT_SIZE);
 	glPointSize(2);
-	glLineWidth(4); //TODO: This doesn't work?
 
 	glEnable(GL_CULL_FACE);
 	glDepthFunc(GL_LESS); //Depth-testing interprets a smaller value as "closer"
@@ -74,84 +73,85 @@ Viewport::Viewport(GLFWwindow *glfw_window, glm::vec3 background_colour) {
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		glfwTerminate();
 	}
-	
+
 	//TODO: file paths are currently relative to excution path, not main location.
-	basicShader = Shader::LoadShaders((char*)"./shaders/basic.vertshader", (char*)"./shaders/basic.fragshader");
+	basic_shader = shader::LoadShaders((char*)"./shaders/basic.vertshader", (char*)"./shaders/basic.fragshader");
 
-    shared_ptr<Geometry> renderAxis = make_shared<Geometry>(axis_lines, axis_colours);
-	shared_ptr<ViewportGrid> grid = make_shared<ViewportGrid>(80, 80, 40, 40, basicShader);
+    shared_ptr<Geometry> render_axis = make_shared<Geometry>(axis_lines, axis_colours);
+	shared_ptr<ViewportGrid> grid = make_shared<ViewportGrid>(80, 80, 40, 40, basic_shader);
 	//TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
-	geoRenderablePairs.push_back(make_pair(grid, make_unique<Renderable>(basicShader, grid, GL_LINES)));
-	geoRenderablePairs.push_back(make_pair(renderAxis, make_unique<Renderable>(basicShader, renderAxis, GL_LINES)));
+	geo_renderable_pairs.push_back(make_pair(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES)));
+	geo_renderable_pairs.push_back(make_pair(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES)));
 }
 
-void Viewport::setupTransformShader(GLuint transformShader) {
-	tShader = transformShader;
+void Viewport::SetupTransformShader(GLuint transformShader) {
+	t_shader = transformShader;
 }
 
-void Viewport::update(float deltaTime) {
-	setFPSCounter(glfwWindow, deltaTime);
+void Viewport::Update(float deltaTime) {
+	SetFpsCounter(glfw_window, deltaTime);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	auto geoRenderable = geoRenderablePairs.begin();
+	auto geo_renderable = geo_renderable_pairs.begin();
 
-	while(geoRenderable != geoRenderablePairs.end()) {
+	while(geo_renderable != geo_renderable_pairs.end()) {
 		//Geo is dead, nuke the map link
-		if (geoRenderable->first->isDead) {
+		if (geo_renderable->first->is_dead) {
 			//iterator.erase gives the next item in the list.
-			geoRenderable = geoRenderablePairs.erase(geoRenderable);
+			geo_renderable = geo_renderable_pairs.erase(geo_renderable);
 			continue;
 		}
 
-		if (geoRenderable->second == NULL) {
+		if (geo_renderable->second == NULL) {
 			//Renderable for geo doesn't exist, make one.
 			//TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
-			geoRenderable->second = make_unique<Renderable>(basicShader, geoRenderable->first, GL_TRIANGLES);
+			geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
 		}
 
-		shared_ptr<Geometry> geometry = geoRenderable->first;
-		shared_ptr<Renderable> renderable = geoRenderable->second;
+		shared_ptr<Geometry> geometry = geo_renderable->first;
+		shared_ptr<Renderable> renderable = geo_renderable->second;
 
-		if (geometry->buffersInvalid) {
-			renderable->validVAO = false;
+		if (geometry->buffers_invalid) {
+			renderable->valid_vao = false;
 		}
 
-		renderable->Draw(deltaTime, camera->getProjectionMatrix(), camera->getViewMatrix());
-		++geoRenderable;
+		renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
+		++geo_renderable;
 	}
 
-	glfwSwapBuffers(glfwWindow);
+	glfwSwapBuffers(glfw_window);
 }
 
 Viewport::~Viewport() {
-	glfwDestroyWindow(glfwWindow);
-	glfwSetWindowUserPointer(glfwWindow, NULL);
+	glfwDestroyWindow(glfw_window);
+	glfwSetWindowUserPointer(glfw_window, NULL);
 	exit(EXIT_SUCCESS);
 }
 
-void Viewport::mouseButtonCallback( GLFWwindow* window, int button, int action, int mods ){
-	for (InputHandler* i : inputHandlers) {
-    	i->mouseButtonCallback(window, button, action, mods);
+void Viewport::MouseButtonCallback( GLFWwindow* window, int button, int action, int mods ){
+	for (InputHandler* i : input_handlers) {
+    	i->MouseButtonCallback(window, button, action, mods);
 	}
 }
  
-void Viewport::cursorCallback( GLFWwindow *window, double x, double y ) {
-	for (InputHandler* i : inputHandlers) {
-    	i->cursorCallback(window, x, y);
+void Viewport::CursorCallback( GLFWwindow *window, double x, double y ) {
+	for (InputHandler* i : input_handlers) {
+    	i->CursorCallback(window, x, y);
 	}
 }
 
-void Viewport::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+void Viewport::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	//Only allow zoom out if we're really close to the camera target
-	if (glm::length(camera->position - camera->target) > 4.0f || yoffset > 0)
+	if (glm::length(camera->position - camera->target) > 4.0f || yoffset > 0) {
 		camera->SetZoom(camera->GetZoom() + (yoffset*1.0f));
+	}
 
-	for (InputHandler* i : inputHandlers) {
-		i->scrollCallback(window, xoffset, yoffset);
+	for (InputHandler* i : input_handlers) {
+		i->ScrollCallback(window, xoffset, yoffset);
 	}
 }
 	
-void Viewport::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void Viewport::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	switch (key) {
 		case(GLFW_KEY_V) :
 			if (action == GLFW_PRESS) {
@@ -169,14 +169,14 @@ void Viewport::keyCallback(GLFWwindow* window, int key, int scancode, int action
 
 		case(GLFW_KEY_C) :
 			if(action == GLFW_PRESS) {
-				camera->SetProjection(!camera->orthoNotPerspective);
+				camera->SetProjection(!camera->ortho_not_perspective);
 			}
 			break;
 
 		case(GLFW_KEY_G) :
 			if(action == GLFW_PRESS) {
 				//TODO: render special geo like the grid and axis seperately to avoid this janky by index referencing.
-				geoRenderablePairs.at(0).first->visible = !geoRenderablePairs.at(0).first->visible;
+				geo_renderable_pairs.at(0).first->visible = !geo_renderable_pairs.at(0).first->visible;
 			}
 			break;
 
@@ -185,12 +185,12 @@ void Viewport::keyCallback(GLFWwindow* window, int key, int scancode, int action
 	} 
 }
 
-void Viewport::windowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+void Viewport::WindowSizeCallback(GLFWwindow* glfw_window, int width, int height) {
 	this->height = height;
 	this->width = width;
 	glViewport(0, 0, width, height);
 
-	for (InputHandler* i : inputHandlers) {
-		i->windowSizeCallback(glfwWindow, width, height);
+	for (InputHandler* i : input_handlers) {
+		i->WindowSizeCallback(glfw_window, width, height);
 	}
 }

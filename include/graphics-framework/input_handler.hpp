@@ -15,23 +15,23 @@
 class InputHandler {
 protected: 
     Camera* camera;
-    int windowWidth;
-    int windowHeight;
+    int window_width;
+    int window_height;
 public:
     InputHandler(Camera* viewportCamera, int window_width, int window_height) 
-        : camera(viewportCamera), windowWidth(window_width), windowHeight(window_height)  {
+        : camera(viewportCamera), window_width(window_width), window_height(window_height)  {
     };
     
-    virtual void scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {};
-    virtual void cursorCallback(GLFWwindow *window, double x, double y) {};
-    virtual void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {};
+    virtual void ScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {};
+    virtual void CursorCallback(GLFWwindow *window, double x, double y) {};
+    virtual void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {};
     
-    void windowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-        this->windowHeight = height;
-        this->windowWidth  = width; 
+    void WindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+        this->window_height = height;
+        this->window_width  = width; 
     }       
 
-    virtual glm::mat4 createViewRotationMatrix() = 0;
+    virtual glm::mat4 CreateViewRotationMatrix() = 0;
 };
 
 #endif 

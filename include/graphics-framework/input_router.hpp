@@ -18,16 +18,16 @@
 
     class InputRouter {
         public:
-            InputRouter(shared_ptr<Viewport> active_viewport);
-            InputRouter() {};
+            explicit InputRouter(shared_ptr<Viewport> active_viewport);
+            InputRouter() = default;
 
             static weak_ptr<Viewport> GetActiveViewport();
             static void SetActiveViewport(shared_ptr<Viewport> viewport);
-            static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
-            static void scrollCallback(GLFWwindow *window, double xoffset, double yoffset);
-            static void cursorCallback(GLFWwindow *window, double x, double y);
-            static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
-            static void windowSizeCallback(GLFWwindow *window, int width, int height);
+            static void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
+            static void ScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
+            static void CursorCallback(GLFWwindow *window, double x, double y);
+            static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
+            static void WindowSizeCallback(GLFWwindow *window, int width, int height);
 
         protected:
 

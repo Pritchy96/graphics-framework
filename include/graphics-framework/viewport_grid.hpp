@@ -3,7 +3,6 @@
 #define VIEWPORTGRID_HPP
 
 #include "renderable.hpp"
-
 #include "geometry.hpp"
 
     class ViewportGrid : public Geometry {

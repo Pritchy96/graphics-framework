@@ -10,7 +10,7 @@
     #include <algorithm>
     #include <stdlib.h>
     #include <string.h>
-    namespace Shader {
+    namespace shader {
         GLuint LoadShaders(char* vertex_file_path, char* fragment_file_path);
         GLuint LoadTransformShader(char * path);
         std::string LoadFileFromDisk(char* path);
