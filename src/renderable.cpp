@@ -1,10 +1,10 @@
-#include "renderable.hpp"
+#include "graphics-framework/renderable.hpp"
 
 using namespace glm;
 using namespace std;
 
-GLuint Renderable::getVAO() {
-	if (!validVAO) {
+GLuint Renderable::GetVAO() {
+	if (!valid_vao) {
 
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
@@ -15,39 +15,39 @@ GLuint Renderable::getVAO() {
 
 		glBindBuffer(GL_ARRAY_BUFFER, pos_vbo);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glBufferData(GL_ARRAY_BUFFER, geometry->flatVerts.size() * sizeof(float), geometry->flatVerts.data(), GL_STREAM_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, geometry->flat_verts.size() * sizeof(float), geometry->flat_verts.data(), GL_STREAM_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, col_vbo);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glBufferData(GL_ARRAY_BUFFER, geometry->flatCols.size() * sizeof(float), geometry->flatCols.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, geometry->flat_cols.size() * sizeof(float), geometry->flat_cols.data(), GL_STATIC_DRAW);
 
 		//Deselect VAO (good practice)
 		glBindVertexArray(0);
 
-		validVAO = true;
+		valid_vao = true;
 	}
 	return vao;
 }
 
 void Renderable::Draw(float deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
-		if (!geometry->visible)
+		if (!geometry->visible) {
 			return;
+		}
 
 		glUseProgram(shader);
+		GLuint shader_id = glGetUniformLocation(shader, "scale");
 
-		GLuint shaderID = glGetUniformLocation(shader, "scale");
-		
 		//TODO: Pass through and do multiplication GPU side?
-		glm::mat4 MVP = projectionMatrix * viewMatrix * modelMatrix;
-		shaderID = glGetUniformLocation(shader, "MVP"); 
-		glUniformMatrix4fv(shaderID, 1, GL_FALSE, &MVP[0][0]);
+		glm::mat4 mvp = projectionMatrix * viewMatrix * model_matrix;
+		shader_id = glGetUniformLocation(shader, "MVP"); 
+		glUniformMatrix4fv(shader_id, 1, GL_FALSE, &mvp[0][0]);
 	
-		glBindVertexArray(getVAO());
-		glDrawArrays(renderType, 0, geometry->vertexes.size());
+		glBindVertexArray(GetVAO());
+		glDrawArrays(render_type, 0, geometry->vertexes.size());
 }
 
 Renderable::Renderable(GLuint Shader, shared_ptr<Geometry> geo_ptr, GLuint renderPrimative) {
 	shader = Shader;
 	geometry = geo_ptr;
-	renderType = renderPrimative;
+	render_type = renderPrimative;
 }

@@ -15,21 +15,21 @@
 
     class Geometry {
         public:
-            Geometry() {};
-            Geometry(vector<glm::vec3> vert_data);
+            Geometry() = default;;
+            explicit Geometry(vector<glm::vec3> vert_data);
             Geometry(vector<glm::vec3> vert_data, vector<glm::vec3> colour_data);
 
             void Update(float deltaT);
 
-            virtual ~Geometry() {}
+            virtual ~Geometry() = default;
             virtual int GenerateFlatBuffers();
 
             //TODO: replace these with accessors into flatverts.
             vector<vec3> vertexes, colours;
-            vector<float> flatVerts, flatCols;
+            vector<float> flat_verts, flat_cols;
             //If true, the flatvert buffers no longer match the vert buffers
-            bool buffersInvalid = true;
-            bool visible = true, isDead = false;
+            bool buffers_invalid = true;
+            bool visible = true, is_dead = false;
     };
 
 #endif

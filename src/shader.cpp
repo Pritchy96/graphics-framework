@@ -1,8 +1,8 @@
-#include "../include/shader.hpp"
+#include "graphics-framework/shader.hpp"
 
 using namespace std;
 
-GLuint Shader::LoadShaders(char* vertFilePath, char* fragFilePath){
+GLuint shader::LoadShaders(char* vertFilePath, char* fragFilePath){
 	cout << "Compiling Shaders" << endl;
 
 	GLuint vertShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -74,7 +74,7 @@ GLuint Shader::LoadShaders(char* vertFilePath, char* fragFilePath){
 	return ProgramID;
 }
 
-string Shader::LoadFileFromDisk(char* path) {
+string shader::LoadFileFromDisk(char* path) {
 	string contents;
 	ifstream fileStream(path, ios::in);
 	if(fileStream.is_open()){
@@ -86,7 +86,7 @@ string Shader::LoadFileFromDisk(char* path) {
 	return contents;
 }
 
-GLuint Shader::LoadTransformShader(char* path){
+GLuint shader::LoadTransformShader(char* path){
 	cout << "Compiling Shaders" << endl;
 
 	GLuint vertShaderID = glCreateShader(GL_VERTEX_SHADER);

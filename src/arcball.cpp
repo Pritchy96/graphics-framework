@@ -1,64 +1,65 @@
-#include "arcball.hpp"
+#include "graphics-framework/arcball.hpp"
 
-Arcball::Arcball(Camera* camera, int window_width, int window_height, GLfloat rotate_speed) 
-    : InputHandler(camera, window_width, window_height), rotateSpeed(rotate_speed) {}
+Arcball::Arcball(Camera *camera, int window_width, int window_height, GLfloat rotate_speed)
+            : InputHandler(camera, window_width, window_height),
+                rotate_speed_(rotate_speed) {}
 
 /**
  * Convert the mouse cursor coordinate on the window (i.e. from (0,0) to (windowWidth, windowHeight))
  * into normalized screen coordinates (i.e. (-1, -1) to (1, 1)
  */
-glm::vec3 Arcball::toScreenCoord(double x, double y) {
-    glm::vec3 coord(0.0f);
+glm::vec3 Arcball::ToScreenCoord(double x, double y) {
+    glm::vec3 coord(0.0F);
     
-    coord.x =  (2 * x - windowWidth ) / windowWidth;
-    coord.y = -(2 * y - windowHeight) / windowHeight;
+    coord.x =  (2 * x - window_width) / window_width;
+    coord.y = -(2 * y - window_height) / window_height;
     
     /* Clamp it to border of the windows, comment these codes to allow rotation when cursor is not over window */
-    coord.x = glm::clamp(coord.x, -1.0f, 1.0f);
-    coord.y = glm::clamp(coord.y, -1.0f, 1.0f);
+    coord.x = glm::clamp(coord.x, -1.0F, 1.0F);
+    coord.y = glm::clamp(coord.y, -1.0F, 1.0F);
     
     float length_squared = coord.x * coord.x + coord.y * coord.y;
-    if( length_squared <= 1.0 )
+    if( length_squared <= 1.0 ) {
         coord.z = sqrt(1.0 - length_squared);
-    else
+    } else {
         coord = glm::normalize( coord );
+    }
     
     return coord;
 }
 
-void Arcball::mouseButtonCallback( GLFWwindow * window, int button, int action, int mods ){
-    leftMouseButtonDown = ( action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT );
+void Arcball::MouseButtonCallback(GLFWwindow *window, int button, int action, int mods){
+    left_mouse_button_down_ = static_cast<int> (action == GLFW_PRESS && button == GLFW_MOUSE_BUTTON_LEFT);
 }
 
-void Arcball::cursorCallback( GLFWwindow *window, double x, double y ){
-    currPos = toScreenCoord( x, y );
+void Arcball::CursorCallback( GLFWwindow *window, double x, double y ){
+    curr_pos_ = ToScreenCoord( x, y );
 
-    if( leftMouseButtonDown == 1 && prevPos != currPos) {
+    if( left_mouse_button_down_ == 1 && prev_pos_ != curr_pos_) {
     /* Calculate the angle in radians, and clamp it between 0 and 90 degrees */
-    angle = acos(glm::dot(prevPos, currPos));
+    angle_ = acos(glm::dot(prev_pos_, curr_pos_));
     
     /* Cross product to get the rotation axis, but it's still in camera coordinate */
-    camAxis = glm::cross(prevPos, currPos);
+    cam_axis_ = glm::cross(prev_pos_, curr_pos_);
 
     //Subtract target from camera position - this gives us the vector difference between the camera pos and its target.
-    vec3 cameraPosOffset = camera->position - camera->target;
+    vec3 camera_pos_offset = camera->position - camera->target;
     //Rotate vector
-    cameraPosOffset = cameraPosOffset * mat3(createViewRotationMatrix());
+    camera_pos_offset = camera_pos_offset * mat3(CreateViewRotationMatrix());
     //Set Position to target + rotated vector.
-    camera->position = (camera->target + cameraPosOffset);
+    camera->position = (camera->target + camera_pos_offset);
 
-    } else if (prevPos == currPos) {    
-       angle = 0;
+    } else if (prev_pos_ == curr_pos_) {    
+       angle_ = 0;
     }
      
-    prevPos = currPos;
+    prev_pos_ = curr_pos_;
 }
 
 /**
  * Create rotation matrix within the camera coordinate,
  * multiply this matrix with view matrix to rotate the camera
  */
-glm::mat4 Arcball::createViewRotationMatrix() {
-        return glm::rotate( glm::degrees(angle) * rotateSpeed, camAxis );
+mat4 Arcball::CreateViewRotationMatrix() {
+  return glm::rotate(glm::degrees(angle_) * rotate_speed_, cam_axis_);
 }
-

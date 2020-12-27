@@ -1,0 +1,11 @@
+{
+    //Disable the C/C++ autocomplete/intellisense tools, as we're using clangd for this.
+    //If we don't do this we get two errors for each actual issue.
+    //https://www.reddit.com/r/vscode/comments/coj8qw/protip_use_clangd_instead_of_the_official_cc/
+    //TODO: Try moving from GDB to LLDB at some point
+    "C_Cpp.autocomplete": "Disabled",
+    "C_Cpp.formatting": "Disabled",
+    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.intelliSenseEngine": "Disabled",
+    "clangd.checkUpdates": true
+}

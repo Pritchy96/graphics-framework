@@ -4,9 +4,13 @@ bin/*
 #Ignore build and lib dirs
 build
 lib/*
+.cache/*
 main.code-workspace#
-vscode
-.vscode/c_cpp_properties.json
-.vscode/launch.json
-.vscode/settings.json
-.vscode/tasks.json
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+compile_commands.json
