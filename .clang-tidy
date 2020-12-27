@@ -25,9 +25,7 @@ Checks: >
   portability-*,
   readability-*,
   -readability-uppercase-literal-suffix,  
-  -google-build-using-namespace,   
-  -google-global-names-in-headers, 
-  -google-readability-todo         
+  -google-readability-todo
   
 
 #Turn most of the specified above warnings into errors
@@ -45,15 +43,11 @@ CheckOptions:
   - { key: readability-identifier-naming.ProtectedMemberCase,    value: lower_case }
   - { key: readability-identifier-naming.PublicMemberCase,       value: lower_case }
   - { key: readability-identifier-naming.PrivateMemberSuffix,    value: _          }
-  - { key: readability-identifier-naming.EnumConstantCase,         value: CamelCase }
-  - { key: readability-identifier-naming.EnumConstantPrefix,       value: k         }
-  - { key: readability-identifier-naming.ConstexprVariableCase,    value: CamelCase }
-  - { key: readability-identifier-naming.ConstexprVariablePrefix,  value: k         }
-  - { key: readability-identifier-naming.GlobalConstantCase,       value: CamelCase }
-  - { key: readability-identifier-naming.GlobalConstantPrefix,     value: k         }
-  - { key: readability-identifier-naming.MemberConstantCase,       value: CamelCase }
-  - { key: readability-identifier-naming.MemberConstantPrefix,     value: k         }
-  - { key: readability-identifier-naming.StaticConstantCase,       value: CamelCase }
-  - { key: readability-identifier-naming.StaticConstantPrefix,     value: k         }
+  - { key: readability-identifier-naming.EnumConstantCase,         value: UPPER_CASE }
+  - { key: readability-identifier-naming.ConstexprVariableCase,    value: UPPER_CASE }
+  - { key: readability-identifier-naming.ConstantMemberCase,       value: UPPER_CASE }
+  - { key: readability-identifier-naming.GlobalConstantCase,       value: UPPER_CASE }
+  - { key: readability-identifier-naming.MemberConstantCase,       value: UPPER_CASE }
+  - { key: readability-identifier-naming.StaticConstantCase,       value: UPPER_CASE }
   - { key: readability-implicit-bool-conversion.AllowIntegerConditions,  value: 1   }
   - { key: readability-implicit-bool-conversion.AllowPointerConditions,  value: 1   }

@@ -1,37 +1,38 @@
 #include "graphics-framework/geometry.hpp"
+#include <vector>
 
-using namespace glm;
-using namespace std;
+using std::vector;
+using glm::vec3;
 
-Geometry::Geometry(vector<glm::vec3> vert_data) {
+Geometry::Geometry(vector<vec3> vert_data) {
 	vertexes = vert_data;
 	colours = vert_data;
 	GenerateFlatBuffers();
 }
 
-Geometry::Geometry(vector<glm::vec3> vert_data, vector<glm::vec3> colour_data) {
+Geometry::Geometry(vector<vec3> vert_data, vector<vec3> colour_data) {
 	vertexes = vert_data;
 	colours = colour_data;
 	GenerateFlatBuffers();
 }
 
-void Geometry::Update(float deltaT) {
+void Geometry::Update(double deltaT) {
 	if (buffers_invalid) {
 		GenerateFlatBuffers();
 	}
 }
 
 int Geometry::GenerateFlatBuffers() {
-	for (vector<glm::vec3>::const_iterator point = vertexes.begin(); point!=vertexes.end(); ++point) {
-		flat_verts.push_back(point->x);
-		flat_verts.push_back(point->y);
-		flat_verts.push_back(point->z);
+	for (auto vertex : vertexes) {
+		flat_verts.push_back(vertex.x);
+		flat_verts.push_back(vertex.y);
+		flat_verts.push_back(vertex.z);
 	}
 
-	for (vector<glm::vec3>::const_iterator colour = colours.begin(); colour!=colours.end(); ++colour) {
-		flat_cols.push_back(colour->x);
-		flat_cols.push_back(colour->y);
-		flat_cols.push_back(colour->z);
+	for (auto colour : colours) {
+		flat_cols.push_back(colour.x);
+		flat_cols.push_back(colour.y);
+		flat_cols.push_back(colour.z);
 	}
 
 	buffers_invalid = false;

@@ -1,7 +1,8 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
 
-    #include <iostream>
+    #include <glm/fwd.hpp>
+#include <iostream>
     #include <GL/glew.h>
     #include <GLFW/glfw3.h>
     #include <glm/glm.hpp>
@@ -9,9 +10,6 @@
     #include <glm/gtc/matrix_transform.hpp>
     #include <glm/gtx/rotate_vector.hpp>
     #include <glm/gtc/matrix_inverse.hpp>
-
-    using namespace glm;    
-    using namespace std;
 
     struct Camera {
         public:
@@ -22,25 +20,28 @@
             Camera(glm::vec3 initial_position, glm::vec3 initial_target, glm::vec3 initial_up);
             ~Camera();
 
-            mat4 GetViewMatrix(); 
-            mat4 GetProjectionMatrix();
+            glm::mat4 GetViewMatrix(); 
+            glm::mat4 GetProjectionMatrix() const;
 
-            void SetProjection(bool ortho_not_perspective);
+            void SetProjection(bool ortho_not_perspective_camera);
 
             void  SetZoom(float new_zoom);
             float GetZoom();
 
             //Set the target to a unit vector from the camera in the requesed direction 
-            void SetDirection(vec3 direction) {
+            void SetDirection(glm::vec3 direction) {
                  target = position + glm::normalize(direction);   
             }
 
             //Get the direction of the target from the camera
-            vec3 GetDirection() const {
+            glm::vec3 GetDirection() const {
                 return target - position;
             }   
         private: 
-            float zoom_ = 90.0f;
+            const float INITIAL_FOV = 90.0f, INITIAL_ASPECT_RATIO = 4.0f/3.0f, INITIAL_Z_NEAR = 0.0f, INITIAL_Z_FAR = 100000000000.0f, 
+                INITIAL_ORTHO_LEFT = -1000.0f, INITIAL_ORTHO_RIGHT = 1000.0f, INITIAL_ORTHO_BOTTOM = -1000.0f, INITIAL_ORTHO_TOP = 1000.0f;
+            float fov_ = INITIAL_FOV, aspect_ratio_ = INITIAL_ASPECT_RATIO, z_near_ = INITIAL_Z_NEAR, z_far_ = INITIAL_Z_FAR, 
+                ortho_left_ = INITIAL_ORTHO_LEFT, ortho_right_ = INITIAL_ORTHO_RIGHT, ortho_bottom_ = INITIAL_ORTHO_BOTTOM, ortho_top_ = INITIAL_ORTHO_TOP;
     };
 
 #endif
