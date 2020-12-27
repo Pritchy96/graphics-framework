@@ -2,8 +2,8 @@
 #define VIEWPORT_HPP
 
     #include <iostream>
-    #include <stdio.h>
-    #include <stdlib.h>
+    #include <cstdio>
+    #include <cstdlib>
     #include <vector>
     #include <memory>
     #include <map>
@@ -26,19 +26,16 @@
     #include "input_handler.hpp"
     #include "camera.hpp"
 
-    using namespace glm;
-    using namespace std;
-
-    class Viewport: public enable_shared_from_this<Viewport> {
+    class Viewport: public std::enable_shared_from_this<Viewport> {
         public:
             Viewport(GLFWwindow *window, glm::vec3 background_colour);
             ~Viewport();
 
-            shared_ptr<Viewport> GetSharedPtr() {
+            std::shared_ptr<Viewport> GetSharedPtr() {
                 return shared_from_this();
             }
 
-            void Update(float deltaT);  
+            void Update(double deltaT);  
             void SetupTransformShader(GLuint transformShader);   
             
             void WindowSizeCallback(GLFWwindow* window, int width, int height);
@@ -50,7 +47,7 @@
 
             //TODO: most of these can be made private.
             GLFWwindow *glfw_window;
-            vector<pair<shared_ptr<Geometry>, shared_ptr<Renderable>>> geo_renderable_pairs;
+            std::vector<std::pair<std::shared_ptr<Geometry>, std::shared_ptr<Renderable>>> geo_renderable_pairs;
 
             GLuint t_shader;      
             GLuint shader_id;    
@@ -61,7 +58,7 @@
             double time_elapsed = 0;
             int frames_elapsed = 0;
 
-            vector<InputHandler*> input_handlers;
+            std::vector<InputHandler*> input_handlers;
             Arcball* arcball_camera;
             Camera* camera;
     };

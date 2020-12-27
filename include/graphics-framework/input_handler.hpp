@@ -26,7 +26,7 @@ public:
     virtual void CursorCallback(GLFWwindow *window, double x, double y) {};
     virtual void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {};
     
-    void WindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+    void WindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {    //NOLINT: unnused callback params
         this->window_height = height;
         this->window_width  = width; 
     }       
@@ -34,4 +34,4 @@ public:
     virtual glm::mat4 CreateViewRotationMatrix() = 0;
 };
 
-#endif 
+#endif

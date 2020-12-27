@@ -1,7 +1,7 @@
 #include "graphics-framework/renderable.hpp"
+#include <memory>
 
-using namespace glm;
-using namespace std;
+using std::shared_ptr;
 
 GLuint Renderable::GetVAO() {
 	if (!valid_vao) {
@@ -14,11 +14,11 @@ GLuint Renderable::GetVAO() {
 		glGenBuffers(1, &col_vbo);
 
 		glBindBuffer(GL_ARRAY_BUFFER, pos_vbo);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glBufferData(GL_ARRAY_BUFFER, geometry->flat_verts.size() * sizeof(float), geometry->flat_verts.data(), GL_STREAM_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, col_vbo);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glBufferData(GL_ARRAY_BUFFER, geometry->flat_cols.size() * sizeof(float), geometry->flat_cols.data(), GL_STATIC_DRAW);
 
 		//Deselect VAO (good practice)
@@ -29,7 +29,7 @@ GLuint Renderable::GetVAO() {
 	return vao;
 }
 
-void Renderable::Draw(float deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
+void Renderable::Draw(double deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
 		if (!geometry->visible) {
 			return;
 		}

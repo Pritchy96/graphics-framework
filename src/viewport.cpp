@@ -1,9 +1,16 @@
 #include "graphics-framework/viewport.hpp"	
+#include <glm/fwd.hpp>
+#include <memory>
+#include <vector>
 
-using namespace std;
-using namespace glm;
+using std::vector;
+using std::shared_ptr;
+using std::make_shared;
+using std::make_unique;
 
-vector<vec3> axis_lines = {
+using glm::vec3;
+
+const vector<vec3> AXIS_LINES = {
     vec3(0.0f, 0.0f, 0.0f),	//x
 	vec3(500.0f, 0.0f, 0.0f),
 	vec3(0.0f, 0.0f, 0.0f),	//y	
@@ -12,7 +19,7 @@ vector<vec3> axis_lines = {
 	vec3(0.0f, 0.0f, 500.0f)
 };
 
-vector<vec3> axis_colours = {
+const vector<vec3> AXIS_COLOURS = {
     vec3(1.0f, 0.0f, 0.0f),	//x
 	vec3(1.0f, 0.0f, 0.0f),	
 	vec3(0.0f, 1.0f, 0.0f), //y
@@ -27,7 +34,7 @@ void Viewport::SetFpsCounter(GLFWwindow* glfw_window, double deltaTime) {
 
 	//If it's more than a quarter of a second, update fps.
 	if (time_elapsed > 250) {
-		double fps = (double)(frames_elapsed / time_elapsed) * 1000;
+		double fps = (frames_elapsed / time_elapsed) * 1000;
 		char tmp[128];
 		//Write formatted data to tmp string.
 		snprintf(tmp, sizeof(tmp)/sizeof(char), "Render Window @ %.2f FPS", fps);
@@ -39,7 +46,7 @@ void Viewport::SetFpsCounter(GLFWwindow* glfw_window, double deltaTime) {
 }
 
 Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour) {
-    cout << "Initialised Viewport" << endl;
+    std::cout << "Initialised Viewport" << std::endl;
 	glfw_window = window;
 
 	glfwGetWindowSize(glfw_window, &width, &height);
@@ -57,7 +64,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour) {
 	//in main.cpp
 	glfwMakeContextCurrent(glfw_window);
 
-	glClearColor(background_colour.r, background_colour.g, background_colour.b, 0.01f);
+	glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0f);
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -68,7 +75,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour) {
 	glDepthFunc(GL_LESS); //Depth-testing interprets a smaller value as "closer"
 
 	// Initialize GLEW
-	glewExperimental = true; // Needed for core profile
+	glewExperimental = 1u; // Needed for core profile
 	if (glewInit() != GLEW_OK) {
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		glfwTerminate();
@@ -77,18 +84,18 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour) {
 	//TODO: file paths are currently relative to excution path, not main location.
 	basic_shader = shader::LoadShaders((char*)"./shaders/basic.vertshader", (char*)"./shaders/basic.fragshader");
 
-    shared_ptr<Geometry> render_axis = make_shared<Geometry>(axis_lines, axis_colours);
+    shared_ptr<Geometry> render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS);
 	shared_ptr<ViewportGrid> grid = make_shared<ViewportGrid>(80, 80, 40, 40, basic_shader);
 	//TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
-	geo_renderable_pairs.push_back(make_pair(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES)));
-	geo_renderable_pairs.push_back(make_pair(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES)));
+	geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
+	geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
 }
 
 void Viewport::SetupTransformShader(GLuint transformShader) {
 	t_shader = transformShader;
 }
 
-void Viewport::Update(float deltaTime) {
+void Viewport::Update(double deltaTime) {
 	SetFpsCounter(glfw_window, deltaTime);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -102,7 +109,7 @@ void Viewport::Update(float deltaTime) {
 			continue;
 		}
 
-		if (geo_renderable->second == NULL) {
+		if (geo_renderable->second == nullptr) {
 			//Renderable for geo doesn't exist, make one.
 			//TODO: Some logic to choose a render type? (currently default to GL_TRIANGLES)
 			geo_renderable->second = make_unique<Renderable>(basic_shader, geo_renderable->first, GL_TRIANGLES);
@@ -124,7 +131,7 @@ void Viewport::Update(float deltaTime) {
 
 Viewport::~Viewport() {
 	glfwDestroyWindow(glfw_window);
-	glfwSetWindowUserPointer(glfw_window, NULL);
+	glfwSetWindowUserPointer(glfw_window, nullptr);
 	exit(EXIT_SUCCESS);
 }
 
@@ -143,7 +150,8 @@ void Viewport::CursorCallback( GLFWwindow *window, double x, double y ) {
 void Viewport::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	//Only allow zoom out if we're really close to the camera target
 	if (glm::length(camera->position - camera->target) > 4.0f || yoffset > 0) {
-		camera->SetZoom(camera->GetZoom() + (yoffset*1.0f));
+		//TODO: properly implement a zoom function
+		// camera->SetZoom(camera->GetZoom() + (yoffset*1.0f));
 	}
 
 	for (InputHandler* i : input_handlers) {
@@ -151,11 +159,11 @@ void Viewport::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset
 	}
 }
 	
-void Viewport::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void Viewport::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {	//NOLINT: unnused callback params
 	switch (key) {
 		case(GLFW_KEY_V) :
 			if (action == GLFW_PRESS) {
-				GLint mode[2];
+				GLint mode[2];	//NOLINT: C style array required for glGetIntergerv
 				glGetIntegerv(GL_POLYGON_MODE, mode);
 				if (mode[0] == GL_LINE) {
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

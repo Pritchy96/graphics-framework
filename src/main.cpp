@@ -1,3 +1,4 @@
+#include <glm/detail/qualifier.hpp>
 #include <iostream>
 #include <chrono>
 #include <memory>
@@ -15,33 +16,41 @@
 #include "graphics-framework/geometry.hpp"
 #include "graphics-framework/geometry_list.hpp"
 
-using namespace std;
-using namespace boost;
+using std::vector;
+using std::shared_ptr;
+using std::make_shared;
+using std::unique_ptr;
+using std::make_unique;
+
+using glm::vec3;
 
 vector<vec3> test_data_lines = {
-	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(200.0, 00.0, 00.0),
-	glm::vec3(00.0, 200.0, 00.0),
+	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(200.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 200.0, 00.0),	//NOLINT: magic numbers ok, temp test code
 
-	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(00.0, 00.0, 200.0),
-	glm::vec3(200.0, 00.0, 00.0),
+	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 00.0, 200.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(200.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
 
-	glm::vec3(00.0, 00.0, 00.0),
-	glm::vec3(00.0, 200.0, 00.0),
-	glm::vec3(00.0, 00.0, 200.0)
+	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 200.0, 00.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 00.0, 200.0)	//NOLINT: magic numbers ok, temp test code	
 };
 
-auto old_time = chrono::steady_clock::now(), new_time = chrono::steady_clock::now();
+auto old_time = std::chrono::steady_clock::now(), new_time = std::chrono::steady_clock::now();
 double delta_t;	
 
 shared_ptr<vector<shared_ptr<Viewport>>> renderers;
 unique_ptr<InputRouter> input_router;
 unique_ptr<GeometryList> master_geometry;
 
-void CreateRenderWindow(int width, int height, char* title, glm::vec3 backgroundCol, GLFWwindow* sharedWindow = NULL) {
+const int DEFAULT_WINDOW_WIDTH = 1024, DEFAULT_WINDOW_HEIGHT = 768;
+const glm::vec3 DEFAULT_WINDOW_COLOUR = glm::vec3(0.7f, 0.7f, 0.7f);
+
+void CreateRenderWindow(int width, int height, char* title, glm::vec3 backgroundCol, GLFWwindow* sharedWindow = nullptr) {
 	 
-	renderers->push_back(make_shared<Viewport>(glfwCreateWindow(width, height, title, NULL, sharedWindow), backgroundCol));
+	renderers->push_back(std::make_shared<Viewport>(glfwCreateWindow(width, height, title, nullptr, sharedWindow), backgroundCol));
 
 	//Bind the viewport class pointer to the window within, so the callbacks can pass through to the non static
 	//viewport callback handlers from the static inputRouter callback functions using the provided window.
@@ -56,14 +65,14 @@ void CreateRenderWindow(int width, int height, char* title, glm::vec3 background
 	glfwSetWindowSizeCallback(renderers->back()->glfw_window, input_router->WindowSizeCallback);
 }
 
-void ErrorCallback(int error, const char* description) {
+void ErrorCallback(int error, const char* description) {	//NOLINT: unnused callback params
 	fprintf(stderr, "%s", description);
 }
 
 //TODO split into init() and mainLoop() functions.
-int main(int argc, const char* argv[]) {
-    cout << "Launching Program" << endl;
-	srand(time(NULL));
+int main(int argc, const char* argv[]) {	//NOLINT: unused params are standard for main()
+    std::cout << "Launching Program" << std::endl;
+	srand(time(nullptr));
 
 	if( !glfwInit() ) {
 		fprintf( stderr, "Failed to initialize GLFW\n" );
@@ -79,22 +88,22 @@ int main(int argc, const char* argv[]) {
 	renderers = make_shared<vector<shared_ptr<Viewport>>>();
 	master_geometry = make_unique<GeometryList>(renderers);
 
-    CreateRenderWindow(1024, 768, (char*)"Render Window", glm::vec3(0.7f, 0.7f, 0.7f));
+    CreateRenderWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, strdup("Render Window"), DEFAULT_WINDOW_COLOUR);
 	input_router->SetActiveViewport(renderers->at(0));
-	CreateRenderWindow(1024, 768, (char*)"Render Window", glm::vec3(0.4f, 0.4f, 0.4f), renderers->at(0)->glfw_window);
+	CreateRenderWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, strdup("Render Window"), DEFAULT_WINDOW_COLOUR, renderers->at(0)->glfw_window);
 	
 	master_geometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
 
-	renderers->at(1)->camera->position = glm::vec3(0, 0, 10);
+	renderers->at(1)->camera->position = glm::vec3(0, 0, 10);	//NOLINT: magic numbers ok, temp test code.
 
 	glfwSetErrorCallback(ErrorCallback);
 
     while (true) {  //TODO: Write proper update & exit logic.
 		old_time = new_time;
-    	new_time = chrono::steady_clock::now();
-		delta_t = chrono::duration_cast<chrono::milliseconds>(new_time - old_time).count();
+    	new_time = std::chrono::steady_clock::now();
+		delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(new_time - old_time).count();
 
-		for (auto v : (*renderers)) {
+		for (const auto& v : (*renderers)) {
 			input_router->SetActiveViewport(v);
         	v->Update(delta_t);
 

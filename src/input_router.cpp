@@ -1,10 +1,12 @@
 //Figure out where the users focus is, then send over input to the relevant handler.
 //Also handle generic requests i.e key shortcuts which should happen regardless of focus.
+#include <memory>
 #include <utility>
 
 #include "graphics-framework/input_router.hpp"
 
-using namespace std;
+using std::shared_ptr;
+using std::weak_ptr;
 
 std::weak_ptr<Viewport> active_viewport;
 
@@ -28,12 +30,12 @@ void InputRouter::MouseButtonCallback(GLFWwindow* window, int button, int action
 	SetActiveViewport(viewport->GetSharedPtr());
     viewport->MouseButtonCallback(window, button, action, mods);
 }
- 
+
 void InputRouter::CursorCallback(GLFWwindow *window, double x, double y) {
 	auto* viewport = static_cast<Viewport*>(glfwGetWindowUserPointer(window));
 	SetActiveViewport(viewport->GetSharedPtr());
     viewport->CursorCallback(window, x, y);
-}	
+}
 
 void InputRouter::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	auto* viewport = static_cast<Viewport*>(glfwGetWindowUserPointer(window));
@@ -46,7 +48,7 @@ void InputRouter::WindowSizeCallback(GLFWwindow* window, int width, int height) 
 	SetActiveViewport(viewport->GetSharedPtr());
 	viewport->WindowSizeCallback(window, width, height);
 }
-	
+
 void InputRouter::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	switch (key) {
 		case(GLFW_KEY_ESCAPE) :

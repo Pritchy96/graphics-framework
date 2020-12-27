@@ -14,17 +14,14 @@
     
     #include "geometry.hpp"
 
-    using namespace glm;
-    using namespace std;
-
     class Renderable {
         public:
-            Renderable(GLuint Shader, shared_ptr<Geometry> geo_ptr, GLuint renderPrimative = GL_POINTS);
+            Renderable(GLuint Shader, std::shared_ptr<Geometry> geo_ptr, GLuint renderPrimative = GL_POINTS);
             Renderable() = default;;
             virtual GLuint GetVAO();
-            virtual void Draw(float deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
+            virtual void Draw(double deltaT, glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
 
-            shared_ptr<Geometry> geometry;
+            std::shared_ptr<Geometry> geometry;
 	        GLuint pos_vbo, col_vbo, vao, shader, render_type;
             glm::mat4 model_matrix = glm::mat4(1.0f);
 
