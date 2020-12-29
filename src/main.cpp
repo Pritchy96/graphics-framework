@@ -1,3 +1,4 @@
+#include "graphics-framework/window_handler.hpp"
 #include <glm/detail/qualifier.hpp>
 #include <iostream>
 #include <chrono>
@@ -15,6 +16,7 @@
 #include "graphics-framework/input_router.hpp"
 #include "graphics-framework/geometry.hpp"
 #include "graphics-framework/geometry_list.hpp"
+#include "graphics-framework/window_handler.hpp"
 
 using std::vector;
 using std::shared_ptr;
@@ -30,7 +32,7 @@ vector<vec3> test_data_lines = {
 	glm::vec3(00.0, 200.0, 00.0),	//NOLINT: magic numbers ok, temp test code
 
 	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
-	glm::vec3(00.0, 00.0, 200.0),	//NOLINT: magic numbers ok, temp test code
+	glm::vec3(00.0, 00.0, 200.0),	//NOLINT: magic numbers ok, temp test code   
 	glm::vec3(200.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
 
 	glm::vec3(00.0, 00.0, 00.0),	//NOLINT: magic numbers ok, temp test code
@@ -41,28 +43,28 @@ vector<vec3> test_data_lines = {
 auto old_time = std::chrono::steady_clock::now(), new_time = std::chrono::steady_clock::now();
 double delta_t;	
 
-shared_ptr<vector<shared_ptr<Viewport>>> renderers;
+shared_ptr<vector<shared_ptr<WindowHandler>>> window_handlers;
 unique_ptr<InputRouter> input_router;
 unique_ptr<GeometryList> master_geometry;
 
 const int DEFAULT_WINDOW_WIDTH = 1024, DEFAULT_WINDOW_HEIGHT = 768;
-const glm::vec3 DEFAULT_WINDOW_COLOUR = glm::vec3(0.7f, 0.7f, 0.7f);
 
-void CreateRenderWindow(int width, int height, char* title, glm::vec3 backgroundCol, GLFWwindow* sharedWindow = nullptr) {
+void CreateRenderWindow(int width, int height, char* title, GLFWwindow* sharedWindow = nullptr) {
 	 
-	renderers->push_back(std::make_shared<Viewport>(glfwCreateWindow(width, height, title, nullptr, sharedWindow), backgroundCol));
+	auto *glfw_window = glfwCreateWindow(width, height, title, nullptr, sharedWindow);
+	window_handlers->push_back(std::make_shared<WindowHandler>(glfw_window));
 
 	//Bind the viewport class pointer to the window within, so the callbacks can pass through to the non static
 	//viewport callback handlers from the static inputRouter callback functions using the provided window.
-	shared_ptr<Viewport> viewport = renderers->back();
-	glfwSetWindowUserPointer(viewport->glfw_window, viewport.get());	
+	shared_ptr<WindowHandler> window_handler = window_handlers->back();
+	glfwSetWindowUserPointer(glfw_window, window_handler.get());	
 
-	glfwSetInputMode(renderers->back()->glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetKeyCallback(renderers->back()->glfw_window, input_router->KeyCallback);
-	glfwSetMouseButtonCallback(renderers->back()->glfw_window, input_router->MouseButtonCallback);
-	glfwSetScrollCallback(renderers->back()->glfw_window, input_router->ScrollCallback);
-	glfwSetCursorPosCallback(renderers->back()->glfw_window, input_router->CursorCallback);
-	glfwSetWindowSizeCallback(renderers->back()->glfw_window, input_router->WindowSizeCallback);
+	glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetKeyCallback(glfw_window, input_router->KeyCallback);
+	glfwSetMouseButtonCallback(glfw_window, input_router->MouseButtonCallback);
+	glfwSetScrollCallback(glfw_window, input_router->ScrollCallback);
+	glfwSetCursorPosCallback(glfw_window, input_router->CursorCallback);
+	glfwSetWindowSizeCallback(glfw_window, input_router->WindowSizeCallback);
 }
 
 void ErrorCallback(int error, const char* description) {	//NOLINT: unnused callback params
@@ -85,16 +87,14 @@ int main(int argc, const char* argv[]) {	//NOLINT: unused params are standard fo
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	input_router = make_unique<InputRouter>();
-	renderers = make_shared<vector<shared_ptr<Viewport>>>();
-	master_geometry = make_unique<GeometryList>(renderers);
+	window_handlers = make_shared<vector<shared_ptr<WindowHandler>>>();
+	master_geometry = make_unique<GeometryList>(window_handlers);
 
-    CreateRenderWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, strdup("Render Window"), DEFAULT_WINDOW_COLOUR);
-	input_router->SetActiveViewport(renderers->at(0));
-	CreateRenderWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, strdup("Render Window"), DEFAULT_WINDOW_COLOUR, renderers->at(0)->glfw_window);
+    CreateRenderWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, strdup("Render Window"));
+	input_router->SetActiveWindowHandler((window_handlers->at(0)));
+	//CreateRenderWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, strdup("Render Window"), window_handlers->at(0)->glfw_window);
 	
 	master_geometry->push_back(make_shared<Geometry>(test_data_lines, test_data_lines));
-
-	renderers->at(1)->camera->position = glm::vec3(0, 0, 10);	//NOLINT: magic numbers ok, temp test code.
 
 	glfwSetErrorCallback(ErrorCallback);
 
@@ -103,9 +103,9 @@ int main(int argc, const char* argv[]) {	//NOLINT: unused params are standard fo
     	new_time = std::chrono::steady_clock::now();
 		delta_t = std::chrono::duration_cast<std::chrono::milliseconds>(new_time - old_time).count();
 
-		for (const auto& v : (*renderers)) {
-			input_router->SetActiveViewport(v);
-        	v->Update(delta_t);
+		for (const auto& w : (*window_handlers)) {
+			input_router->SetActiveWindowHandler(w);
+        	w->Update(delta_t);
 
 			//Update other events like input handling 
 	    	glfwPollEvents();

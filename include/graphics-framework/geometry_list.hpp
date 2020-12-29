@@ -5,20 +5,23 @@
 #include <vector>
 #include <memory>
     
-#include "viewport.hpp"
-#include "geometry.hpp"
+#include "graphics-framework/window_handler.hpp"
+#include "graphics-framework/viewport.hpp"
+#include "graphics-framework/geometry.hpp"
 
-    class GeometryList {    
+    class GeometryList {
         public:
-            explicit GeometryList(std::shared_ptr<std::vector<std::shared_ptr<Viewport>>> viewport_list) : viewports_(viewport_list) {};
+            explicit GeometryList(std::shared_ptr<std::vector<std::shared_ptr<WindowHandler>>> window_handler_list) : window_handlers_(window_handler_list) {};
             ~GeometryList() = default;
-            std::vector<std::shared_ptr<Geometry>> geometry_list; 
+            std::vector<std::shared_ptr<Geometry>> geometry_list;
 
             void push_back(std::shared_ptr<Geometry> geometry) { //NOLINT: lower case method name to match std::vector method.
                 geometry_list.push_back(geometry);
-
-                for (const std::shared_ptr<Viewport>& v : (*viewports_)) {
-                    v->geo_renderable_pairs.emplace_back(geometry, nullptr);
+            
+                for (const std::shared_ptr<WindowHandler>& w : *window_handlers_) {
+                    for (const std::shared_ptr<Viewport>& v : w->viewports) {
+                        v->geo_renderable_pairs.emplace_back(geometry, nullptr);
+                    }
                 }
             }
             
@@ -37,9 +40,7 @@
             std::vector<std::shared_ptr<Geometry>>::iterator end() { return geometry_list.end(); }    //NOLINT: lower case method name to match std::vector method.
 
         private:    
-            std::shared_ptr<std::vector<std::shared_ptr<Viewport>>> viewports_;
+            std::shared_ptr<std::vector<std::shared_ptr<WindowHandler>>> window_handlers_;
     };
 
 #endif
-
-

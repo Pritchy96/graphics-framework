@@ -28,22 +28,23 @@
 
     class Viewport: public std::enable_shared_from_this<Viewport> {
         public:
-            Viewport(GLFWwindow *window, glm::vec3 background_colour);
-            ~Viewport();
+            Viewport(GLFWwindow *window, glm::vec3 background_colour, int window_width, int window_height, float viewport_x_origin_ratio, 
+					    float viewport_y_origin_ratio, float viewport_width_ratio, float viewport_height_ratio);
+            ~Viewport() = default;
 
             std::shared_ptr<Viewport> GetSharedPtr() {
                 return shared_from_this();
             }
 
             void Update(double deltaT);  
+            void SetFpsCounter(GLFWwindow* window, double deltaT);
             void SetupTransformShader(GLuint transformShader);   
             
-            void WindowSizeCallback(GLFWwindow* window, int width, int height);
-            void SetFpsCounter(GLFWwindow* window, double deltaT);
             void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
             void MouseButtonCallback( GLFWwindow* window, int button, int action, int mods );
             void CursorCallback( GLFWwindow* window, double x, double y );
             void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+            void WindowSizeCallback(GLFWwindow* glfw_window, int width, int height);
 
             //TODO: most of these can be made private.
             GLFWwindow *glfw_window;
@@ -52,8 +53,11 @@
             GLuint t_shader;      
             GLuint shader_id;    
             GLuint basic_shader;
-
-            int width = -1, height = -1;
+            
+            //x/y origin in the window, calculated when a viewport is moved
+            //Expressed as a multiplier of the window size, which means window resizing
+            //automagically works.
+            float x_origin_ratio = 0, y_origin_ratio = 0, width_ratio = -1, height_ratio = -1;
 
             double time_elapsed = 0;
             int frames_elapsed = 0;
@@ -61,6 +65,9 @@
             std::vector<InputHandler*> input_handlers;
             Arcball* arcball_camera;
             Camera* camera;
+        private:
+            int window_width_, window_height_;
+
     };
 
 #endif

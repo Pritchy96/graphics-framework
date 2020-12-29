@@ -4,61 +4,62 @@
 #include <utility>
 
 #include "graphics-framework/input_router.hpp"
+#include "graphics-framework/window_handler.hpp"
 
 using std::shared_ptr;
 using std::weak_ptr;
 
-std::weak_ptr<Viewport> active_viewport;
+std::weak_ptr<WindowHandler> active_window_handler;
 
-weak_ptr<Viewport> InputRouter::GetActiveViewport() {
-	return active_viewport;
+weak_ptr<WindowHandler> InputRouter::GetActiveWindowHandler() {
+	return active_window_handler;
 }
 
-//Retuns false if window does not have a valid associated viewport.
-//TODO: do we need to have a reference to the currently active viewport?
-void InputRouter::SetActiveViewport(shared_ptr<Viewport> viewport) {
-	active_viewport = viewport;
-	glfwMakeContextCurrent(viewport->glfw_window);
+//Retuns false if window does not have a valid associated window_handler.
+//TODO: do we need to have a reference to the currently active window_handler?
+void InputRouter::SetActiveWindowHandler(shared_ptr<WindowHandler> window_handler) {
+	active_window_handler = window_handler;
+	glfwMakeContextCurrent(window_handler->glfw_window);
 }
 
-InputRouter::InputRouter(shared_ptr<Viewport> active_viewport) {
-	SetActiveViewport(std::move(active_viewport));
+InputRouter::InputRouter(shared_ptr<WindowHandler> active_window) {
+	SetActiveWindowHandler(std::move(active_window));
 }
 
 void InputRouter::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	auto* viewport = static_cast<Viewport*>(glfwGetWindowUserPointer(window));
-	SetActiveViewport(viewport->GetSharedPtr());
-    viewport->MouseButtonCallback(window, button, action, mods);
-}
+	auto* window_handler = static_cast<WindowHandler*>(glfwGetWindowUserPointer(window));
+	SetActiveWindowHandler(window_handler->GetSharedPtr());
+    window_handler->MouseButtonCallback(window_handler->glfw_window, button, action, mods);
+}	
 
 void InputRouter::CursorCallback(GLFWwindow *window, double x, double y) {
-	auto* viewport = static_cast<Viewport*>(glfwGetWindowUserPointer(window));
-	SetActiveViewport(viewport->GetSharedPtr());
-    viewport->CursorCallback(window, x, y);
+	auto* window_handler = static_cast<WindowHandler*>(glfwGetWindowUserPointer(window));
+	SetActiveWindowHandler(window_handler->GetSharedPtr());
+    window_handler->CursorCallback(window_handler->glfw_window, x, y);
 }
 
 void InputRouter::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-	auto* viewport = static_cast<Viewport*>(glfwGetWindowUserPointer(window));
-	SetActiveViewport(viewport->GetSharedPtr());
-	viewport->ScrollCallback(window, xoffset, yoffset);
+	auto* window_handler = static_cast<WindowHandler*>(glfwGetWindowUserPointer(window));
+	SetActiveWindowHandler(window_handler->GetSharedPtr());
+	window_handler->ScrollCallback(window_handler->glfw_window, xoffset, yoffset);
 }
 
 void InputRouter::WindowSizeCallback(GLFWwindow* window, int width, int height) {
-	auto* viewport = static_cast<Viewport*>(glfwGetWindowUserPointer(window));
-	SetActiveViewport(viewport->GetSharedPtr());
-	viewport->WindowSizeCallback(window, width, height);
+	auto* window_handler = static_cast<WindowHandler*>(glfwGetWindowUserPointer(window));
+	SetActiveWindowHandler(window_handler->GetSharedPtr());
+	window_handler->WindowSizeCallback(window_handler->glfw_window, width, height);
 }
 
 void InputRouter::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	switch (key) {
 		case(GLFW_KEY_ESCAPE) :
-			//TODO: move to viewport, escape kills currently focused viewport, another key adds one.
+			//TODO: move to window_handler, escape kills currently focused window_handler, another key adds one.
 			exit(0);
 			break;
 		default: 
-		    auto* viewport = static_cast<Viewport*>(glfwGetWindowUserPointer(window));
-			SetActiveViewport(viewport->GetSharedPtr());
-			viewport->KeyCallback(window, key, scancode, action, mods);
+		    auto* window_handler = static_cast<WindowHandler*>(glfwGetWindowUserPointer(window));
+			SetActiveWindowHandler(window_handler->GetSharedPtr());
+			window_handler->KeyCallback(window, key, scancode, action, mods);
 		break;
 	}
 }

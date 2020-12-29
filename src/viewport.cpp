@@ -45,43 +45,31 @@ void Viewport::SetFpsCounter(GLFWwindow* glfw_window, double deltaTime) {
 	}
 }
 
-Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour) {
+Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour, int window_width, int window_height, float viewport_x_origin_ratio, 
+					float viewport_y_origin_ratio, float viewport_width_ratio, float viewport_height_ratio) {
+
     std::cout << "Initialised Viewport" << std::endl;
 	glfw_window = window;
-
-	glfwGetWindowSize(glfw_window, &width, &height);
+	x_origin_ratio = viewport_x_origin_ratio;
+	y_origin_ratio = viewport_y_origin_ratio;
+	width_ratio = viewport_width_ratio;
+	height_ratio = viewport_height_ratio;
+	window_width_ = window_width;
+	window_height_ = window_height;
 
 	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
-	arcball_camera = new Arcball(camera, width, height, .015f);
+	arcball_camera = new Arcball(camera, (window_width_ * width_ratio), (window_height_ * height_ratio), .015f);
 	input_handlers.push_back(arcball_camera);
-
-	if( !glfw_window ) {
-		fprintf(stderr, "Failed to open GLFW window.\n" );
-		glfwTerminate();
-	}
 
 	//TODO: Move everything dependent on this (gl calls, shader loads etc) to an init() function so this context setting can be done 
 	//in main.cpp
 	glfwMakeContextCurrent(glfw_window);
 
+	//TODO: Can this be done per update after glViewport, and just set the background of a portion of the window?
 	glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0f);
-	glEnable(GL_DEPTH_TEST); // enable depth-testing
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_PROGRAM_POINT_SIZE);
-	glPointSize(2);
-
-	glEnable(GL_CULL_FACE);
-	glDepthFunc(GL_LESS); //Depth-testing interprets a smaller value as "closer"
-
-	// Initialize GLEW
-	glewExperimental = 1u; // Needed for core profile
-	if (glewInit() != GLEW_OK) {
-		fprintf(stderr, "Failed to initialize GLEW\n");
-		glfwTerminate();
-	}
 
 	//TODO: file paths are currently relative to excution path, not main location.
+	//TODO: load these once, keep in static file?
 	basic_shader = shader::LoadShaders((char*)"./shaders/basic.vertshader", (char*)"./shaders/basic.fragshader");
 
     shared_ptr<Geometry> render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS);
@@ -96,7 +84,11 @@ void Viewport::SetupTransformShader(GLuint transformShader) {
 }
 
 void Viewport::Update(double deltaTime) {
-	SetFpsCounter(glfw_window, deltaTime);
+
+	//Draw in the section of the window this viewport encompasses
+	glViewport((window_width_ * x_origin_ratio), (window_height_ * y_origin_ratio), (window_width_ * width_ratio), (window_height_ * height_ratio));
+	//glScissor further constrains the window draw, constrains stuff like glClear.
+	glScissor((window_width_ * x_origin_ratio), (window_height_ * y_origin_ratio), (window_width_ * width_ratio), (window_height_ * height_ratio));
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto geo_renderable = geo_renderable_pairs.begin();
@@ -129,11 +121,7 @@ void Viewport::Update(double deltaTime) {
 	glfwSwapBuffers(glfw_window);
 }
 
-Viewport::~Viewport() {
-	glfwDestroyWindow(glfw_window);
-	glfwSetWindowUserPointer(glfw_window, nullptr);
-	exit(EXIT_SUCCESS);
-}
+
 
 void Viewport::MouseButtonCallback( GLFWwindow* window, int button, int action, int mods ){
 	for (InputHandler* i : input_handlers) {
@@ -194,11 +182,6 @@ void Viewport::KeyCallback(GLFWwindow* window, int key, int scancode, int action
 }
 
 void Viewport::WindowSizeCallback(GLFWwindow* glfw_window, int width, int height) {
-	this->height = height;
-	this->width = width;
-	glViewport(0, 0, width, height);
-
-	for (InputHandler* i : input_handlers) {
-		i->WindowSizeCallback(glfw_window, width, height);
-	}
+ 	this->window_height_ = height;
+	this->window_width_ = width;
 }
