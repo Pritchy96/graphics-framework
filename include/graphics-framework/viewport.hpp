@@ -1,7 +1,8 @@
 #ifndef VIEWPORT_HPP
 #define VIEWPORT_HPP
 
-    #include <iostream>
+    #include <glm/fwd.hpp>
+#include <iostream>
     #include <cstdio>
     #include <cstdlib>
     #include <vector>
@@ -28,7 +29,7 @@
 
     class Viewport: public std::enable_shared_from_this<Viewport> {
         public:
-            Viewport(GLFWwindow *window, glm::vec3 background_colour, int window_width, int window_height, float viewport_x_origin_ratio, 
+            Viewport(GLFWwindow *window, glm::vec3 background_col, int window_width, int window_height, float viewport_x_origin_ratio, 
 					    float viewport_y_origin_ratio, float viewport_width_ratio, float viewport_height_ratio);
             ~Viewport() = default;
 
@@ -55,9 +56,10 @@
             GLuint basic_shader;
             
             //x/y origin in the window, calculated when a viewport is moved
-            //Expressed as a multiplier of the window size, which means window resizing
-            //automagically works.
-            float x_origin_ratio = 0, y_origin_ratio = 0, width_ratio = -1, height_ratio = -1;
+            //Expressed as a multiplier of the window size, meaning window resizing automagically works.
+            float x_origin_ratio = 0, y_origin_ratio = 0, width_ratio = 0, height_ratio = 0;
+
+            glm::vec3 background_colour;
 
             double time_elapsed = 0;
             int frames_elapsed = 0;
@@ -67,7 +69,6 @@
             Camera* camera;
         private:
             int window_width_, window_height_;
-
     };
 
 #endif

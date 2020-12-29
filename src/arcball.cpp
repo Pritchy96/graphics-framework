@@ -40,7 +40,7 @@ void Arcball::MouseButtonCallback(GLFWwindow *window, int button, int action, in
 void Arcball::CursorCallback( GLFWwindow *window, double x, double y ){ //NOLINT: unnused callback params
     curr_pos_ = ToScreenCoord( x, y );
 
-    if( left_mouse_button_down_ == 1 && prev_pos_ != curr_pos_) {
+    if( left_mouse_button_down_ == 1 && prev_pos_ != curr_pos_ && prev_pos_ != glm::vec3(0.0f)) {
     /* Calculate the angle in radians, and clamp it between 0 and 90 degrees */
     angle_ = acos(dot(prev_pos_, curr_pos_));
     

@@ -1,13 +1,12 @@
 #include "graphics-framework/window_handler.hpp"	
+#include "GLFW/glfw3.h"
 #include "graphics-framework/viewport.hpp"
 #include <glm/fwd.hpp>
 #include <memory>
+#include <unistd.h>
 #include <vector>
 
-using std::vector;
-using std::shared_ptr;
 using std::make_shared;
-using std::make_unique;
 
 using glm::vec3;
 
@@ -69,8 +68,8 @@ WindowHandler::WindowHandler(GLFWwindow *window) {
 
 	//TEMP test code?
 	viewports.push_back(make_shared<Viewport>(glfw_window, DEFAULT_WINDOW_COLOUR, width, height, 0, 0, 0.5f, 1.0f));
-	viewports.push_back(make_shared<Viewport>(glfw_window, DEFAULT_WINDOW_COLOUR, width, height, 0.5f, 0, 0.5f, 1.0f));
 
+	viewports.push_back(make_shared<Viewport>(glfw_window, DEFAULT_WINDOW_COLOUR, width, height, 0.5f, 0, 0.5f, 1.0f));
 	viewports.at(1)->camera->position = glm::vec3(0, 0, 10);	//NOLINT: magic numbers ok, temp test code.
 
 }
@@ -93,30 +92,44 @@ void WindowHandler::Update(double deltaTime) {
 }
 
 WindowHandler::~WindowHandler() {
-		glfwDestroyWindow(glfw_window);
+	// glfwDestroyWindow(glfw_window);
 	glfwSetWindowUserPointer(glfw_window, nullptr);
 	exit(EXIT_SUCCESS);
 }
 
 void WindowHandler::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	// for (InputHandler* i : input_handlers) {
-    // 	i->MouseButtonCallback(window, button, action, mods);
-	// }
+	auto viewport = viewports.begin();
 
+	while(viewport != viewports.end()) {
+		//Draw in the section of the window this viewport encompasses
+		int x0 = (width * (*viewport)->x_origin_ratio);
+		int y0 = (height * (*viewport)->y_origin_ratio);
+		int x1 = x0 + (width * (*viewport)->width_ratio);
+		int y1 = y0 + (height * (*viewport)->height_ratio);
 
-	/* 
-	if (focused_viewport_ != nullptr) {
-		//this is a continuation of an input, i.e a mouse drag while a mouse button is down.
-		//If the mosue button is down (for example), the input should still go to the viewport 
-		//initially clicked on and not the viewport the mouse might be over now.
+		//if viewport is in cursor bounds and we click, pass the callback through
+		//and make it the focused viewport.
+		//TODO: should some of these be >= or <=?
+		if (cursor_x > x0 && cursor_x < x1 && cursor_y > y0 && cursor_y < y1) {
+			if (action == GLFW_PRESS) {
+				focused_viewport_ = (*viewport);
+			}
+
+			(*viewport)->MouseButtonCallback(window, button, action, mods);
+
+			return;
+		}
+		viewport++;
 	}
-	*/
 }
  
 void WindowHandler::CursorCallback( GLFWwindow *window, double x, double y ) {
-	// for (InputHandler* i : input_handlers) {
-    // 	i->CursorCallback(window, x, y);
-	// }
+	cursor_x = x;
+	cursor_y = y;
+	
+	if (focused_viewport_ != nullptr) {
+		focused_viewport_->CursorCallback(window, x, y);
+	}
 }
 
 void WindowHandler::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -125,44 +138,16 @@ void WindowHandler::ScrollCallback(GLFWwindow* window, double xoffset, double yo
 	// 	//TODO: properly implement a zoom function
 	// 	// camera->SetZoom(camera->GetZoom() + (yoffset*1.0f));
 	// }
-
+	
 	// for (InputHandler* i : input_handlers) {
 	// 	i->ScrollCallback(window, xoffset, yoffset);
 	// }
 }
 	
 void WindowHandler::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {	//NOLINT: unnused callback params
-	// switch (key) {
-	// 	case(GLFW_KEY_V) :
-	// 		if (action == GLFW_PRESS) {
-	// 			GLint mode[2];	//NOLINT: C style array required for glGetIntergerv
-	// 			glGetIntegerv(GL_POLYGON_MODE, mode);
-	// 			if (mode[0] == GL_LINE) {
-	// 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	// 				fprintf( stdout, "Switching View to GL_FILL.\n" );
-	// 			} else {
-	// 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	// 				fprintf( stdout, "Switching View to GL_LINE.\n" );
-	// 			}
-	// 		}
-	// 		break;
-
-	// 	case(GLFW_KEY_C) :
-	// 		if(action == GLFW_PRESS) {
-	// 			camera->SetProjection(!camera->ortho_not_perspective);
-	// 		}
-	// 		break;
-
-	// 	case(GLFW_KEY_G) :
-	// 		if(action == GLFW_PRESS) {
-	// 			//TODO: render special geo like the grid and axis seperately to avoid this janky by index referencing.
-	// 			geo_renderable_pairs.at(0).first->visible = !geo_renderable_pairs.at(0).first->visible;
-	// 		}
-	// 		break;
-
-	// 	default:
-	// 		break;
-	// } 
+	if (focused_viewport_ != nullptr) {
+		focused_viewport_->KeyCallback(window, key, scancode, action, mods);
+	}
 }
 
 void WindowHandler::WindowSizeCallback(GLFWwindow* glfw_window, int width, int height) {

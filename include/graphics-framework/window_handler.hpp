@@ -55,8 +55,11 @@
             // std::array<std::array<std::shared_ptr<Viewport>, VIEWPORT_SLOTS_Y>, VIEWPORT_SLOTS_X>(viewport_slots);  
 
             int width = -1, height = -1;
+            double cursor_x, cursor_y;
             GLFWwindow *glfw_window;
         private:
+            std::shared_ptr<Viewport> focused_viewport_;
+
     };
 
 #endif

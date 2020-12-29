@@ -45,7 +45,7 @@ void Viewport::SetFpsCounter(GLFWwindow* glfw_window, double deltaTime) {
 	}
 }
 
-Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour, int window_width, int window_height, float viewport_x_origin_ratio, 
+Viewport::Viewport(GLFWwindow *window, glm::vec3 background_col, int window_width, int window_height, float viewport_x_origin_ratio, 
 					float viewport_y_origin_ratio, float viewport_width_ratio, float viewport_height_ratio) {
 
     std::cout << "Initialised Viewport" << std::endl;
@@ -56,6 +56,7 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour, int window_w
 	height_ratio = viewport_height_ratio;
 	window_width_ = window_width;
 	window_height_ = window_height;
+	background_colour = background_col;
 
 	camera = new Camera(glm::vec3(100, 100, 100), glm::vec3(0, 0, 0), glm::vec3(0.0f, 1.0f, 0.0f));
 	arcball_camera = new Arcball(camera, (window_width_ * width_ratio), (window_height_ * height_ratio), .015f);
@@ -65,18 +66,18 @@ Viewport::Viewport(GLFWwindow *window, glm::vec3 background_colour, int window_w
 	//in main.cpp
 	glfwMakeContextCurrent(glfw_window);
 
-	//TODO: Can this be done per update after glViewport, and just set the background of a portion of the window?
-	glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0f);
-
 	//TODO: file paths are currently relative to excution path, not main location.
 	//TODO: load these once, keep in static file?
 	basic_shader = shader::LoadShaders((char*)"./shaders/basic.vertshader", (char*)"./shaders/basic.fragshader");
 
     shared_ptr<Geometry> render_axis = make_shared<Geometry>(AXIS_LINES, AXIS_COLOURS);
 	shared_ptr<ViewportGrid> grid = make_shared<ViewportGrid>(80, 80, 40, 40, basic_shader);
+	
 	//TODO: better to have a GeoList in the viewport with just (this) in it's renderable list?
 	geo_renderable_pairs.emplace_back(grid, make_unique<Renderable>(basic_shader, grid, GL_LINES));
 	geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
+	geo_renderable_pairs.emplace_back(render_axis, make_unique<Renderable>(basic_shader, render_axis, GL_LINES));
+
 }
 
 void Viewport::SetupTransformShader(GLuint transformShader) {
@@ -86,9 +87,23 @@ void Viewport::SetupTransformShader(GLuint transformShader) {
 void Viewport::Update(double deltaTime) {
 
 	//Draw in the section of the window this viewport encompasses
-	glViewport((window_width_ * x_origin_ratio), (window_height_ * y_origin_ratio), (window_width_ * width_ratio), (window_height_ * height_ratio));
-	//glScissor further constrains the window draw, constrains stuff like glClear.
-	glScissor((window_width_ * x_origin_ratio), (window_height_ * y_origin_ratio), (window_width_ * width_ratio), (window_height_ * height_ratio));
+	GLint x_origin = (window_width_ * x_origin_ratio);
+	GLint y_origin = (window_height_ * y_origin_ratio);
+	GLsizei width = (window_width_ * width_ratio);
+	GLsizei height = (window_height_ * height_ratio);
+
+	//Clear the full viewport size with a red colour
+	//This is a hacky way to get a viewport border
+	//TODO: do some screenspace rendering for borders instead of this
+	glViewport(x_origin, y_origin, width, height);
+	glScissor(x_origin, y_origin, width, height);
+	glClearColor(0.8f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Now clear and use a very slightly smaller area as our viewport 
+	glViewport(x_origin + 1, y_origin + 1, width - 2, height - 2);
+	glScissor(x_origin + 1, y_origin + 1, width - 2, height - 2);
+	glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto geo_renderable = geo_renderable_pairs.begin();
@@ -117,11 +132,7 @@ void Viewport::Update(double deltaTime) {
 		renderable->Draw(deltaTime, camera->GetProjectionMatrix(), camera->GetViewMatrix());
 		++geo_renderable;
 	}
-
-	glfwSwapBuffers(glfw_window);
 }
-
-
 
 void Viewport::MouseButtonCallback( GLFWwindow* window, int button, int action, int mods ){
 	for (InputHandler* i : input_handlers) {
